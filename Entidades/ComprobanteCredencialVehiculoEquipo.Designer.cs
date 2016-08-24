@@ -84,7 +84,7 @@ namespace Entidades
             // 
             // detail
             // 
-            this.detail.Height = new Telerik.Reporting.Drawing.Unit(20.150556564331055D, Telerik.Reporting.Drawing.UnitType.Cm);
+            this.detail.Height = new Telerik.Reporting.Drawing.Unit(18.150556564331055D, Telerik.Reporting.Drawing.UnitType.Cm);
             this.detail.Items.AddRange(new Telerik.Reporting.ReportItemBase[] {
             this.panel9});
             this.detail.Name = "detail";
@@ -105,7 +105,7 @@ namespace Entidades
             this.textBox1});
             this.panel9.Location = new Telerik.Reporting.Drawing.PointU(new Telerik.Reporting.Drawing.Unit(0.11811026185750961D, Telerik.Reporting.Drawing.UnitType.Inch), new Telerik.Reporting.Drawing.Unit(0.0091009931638836861D, Telerik.Reporting.Drawing.UnitType.Inch));
             this.panel9.Name = "panel9";
-            this.panel9.Size = new Telerik.Reporting.Drawing.SizeU(new Telerik.Reporting.Drawing.Unit(291.99996948242188D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(196.2744140625D, Telerik.Reporting.Drawing.UnitType.Mm));
+            this.panel9.Size = new Telerik.Reporting.Drawing.SizeU(new Telerik.Reporting.Drawing.Unit(201.99996948242188D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(196.2744140625D, Telerik.Reporting.Drawing.UnitType.Mm));
             this.panel9.Style.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(239)))), ((int)(((byte)(246)))), ((int)(((byte)(255)))));
             this.panel9.Style.BackgroundImage.Repeat = Telerik.Reporting.Drawing.BackgroundRepeat.NoRepeat;
             this.panel9.Style.BorderColor.Bottom = System.Drawing.Color.DarkGray;
@@ -133,7 +133,7 @@ namespace Entidades
             // 
             this.textBox52.Location = new Telerik.Reporting.Drawing.PointU(new Telerik.Reporting.Drawing.Unit(67D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(11.595169067382813D, Telerik.Reporting.Drawing.UnitType.Mm));
             this.textBox52.Name = "textBox52";
-            this.textBox52.Size = new Telerik.Reporting.Drawing.SizeU(new Telerik.Reporting.Drawing.Unit(205D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(15.257007598876953D, Telerik.Reporting.Drawing.UnitType.Mm));
+            this.textBox52.Size = new Telerik.Reporting.Drawing.SizeU(new Telerik.Reporting.Drawing.Unit(170D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(15.257007598876953D, Telerik.Reporting.Drawing.UnitType.Mm));
             this.textBox52.Style.Color = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(87)))), ((int)(((byte)(181)))));
             this.textBox52.Style.Font.Bold = true;
             this.textBox52.Style.Font.Size = new Telerik.Reporting.Drawing.Unit(30D, Telerik.Reporting.Drawing.UnitType.Point);
@@ -152,9 +152,9 @@ namespace Entidades
             this.textBox4,
             this.textBox2,
             this.textBox5});
-            this.panel10.Location = new Telerik.Reporting.Drawing.PointU(new Telerik.Reporting.Drawing.Unit(1.749998927116394D, Telerik.Reporting.Drawing.UnitType.Cm), new Telerik.Reporting.Drawing.Unit(8.1274423599243164D, Telerik.Reporting.Drawing.UnitType.Cm));
+            this.panel10.Location = new Telerik.Reporting.Drawing.PointU(new Telerik.Reporting.Drawing.Unit(0.149998927116394D, Telerik.Reporting.Drawing.UnitType.Cm), new Telerik.Reporting.Drawing.Unit(8.1274423599243164D, Telerik.Reporting.Drawing.UnitType.Cm));
             this.panel10.Name = "panel10";
-            this.panel10.Size = new Telerik.Reporting.Drawing.SizeU(new Telerik.Reporting.Drawing.Unit(27.449996948242188D, Telerik.Reporting.Drawing.UnitType.Cm), new Telerik.Reporting.Drawing.Unit(9.9997997283935547D, Telerik.Reporting.Drawing.UnitType.Cm));
+            this.panel10.Size = new Telerik.Reporting.Drawing.SizeU(new Telerik.Reporting.Drawing.Unit(25.449996948242188D, Telerik.Reporting.Drawing.UnitType.Cm), new Telerik.Reporting.Drawing.Unit(8.9997997283935547D, Telerik.Reporting.Drawing.UnitType.Cm));
             this.panel10.Style.BackgroundColor = System.Drawing.Color.White;
             this.panel10.Style.BorderColor.Default = System.Drawing.Color.Silver;
             this.panel10.Style.BorderStyle.Default = Telerik.Reporting.Drawing.BorderType.Solid;
@@ -261,7 +261,7 @@ namespace Entidades
             // 
             this.textBox60.Location = new Telerik.Reporting.Drawing.PointU(new Telerik.Reporting.Drawing.Unit(66.229156494140625D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(38.770832061767578D, Telerik.Reporting.Drawing.UnitType.Mm));
             this.textBox60.Name = "textBox60";
-            this.textBox60.Size = new Telerik.Reporting.Drawing.SizeU(new Telerik.Reporting.Drawing.Unit(205.77082824707031D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(11.628493309020996D, Telerik.Reporting.Drawing.UnitType.Mm));
+            this.textBox60.Size = new Telerik.Reporting.Drawing.SizeU(new Telerik.Reporting.Drawing.Unit(180.77082824707031D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(11.628493309020996D, Telerik.Reporting.Drawing.UnitType.Mm));
             this.textBox60.Style.Color = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(87)))), ((int)(((byte)(181)))));
             this.textBox60.Style.Font.Bold = false;
             this.textBox60.Style.Font.Size = new Telerik.Reporting.Drawing.Unit(24D, Telerik.Reporting.Drawing.UnitType.Point);
