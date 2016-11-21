@@ -449,6 +449,7 @@ public partial class ABMLegajos2 : System.Web.UI.Page
         }
 
 
+        //<!--asp:Label ID="Label28" runat="server" Style="font-weight: bold" Text='<%# DateTime.Now < Convert.ToDateTime(Eval("d.CredVencimiento")) && Convert.ToDateTime(Eval("d.CredVencimiento")) <= Convert.ToDateTime(Eval("dc.FechaVencimiento")) ? "SÍ": "NO" %>'></asp:Label-->
 
         var datos = (from d in DatosLegajosFiltrados
                      select new
@@ -457,6 +458,7 @@ public partial class ABMLegajos2 : System.Web.UI.Page
                          DesEstudiosBasicos = !d.EstudiosBasicos.HasValue ? "No Apto" : !d.EstudiosBasicos.Value ? "No Apto" : "Apto",
                          DesComplementarioRacs = !d.ComplementarioRacs.HasValue ? "No Apto" : !d.ComplementarioRacs.Value ? "No Apto" : "Apto",
                          DesAdicionalQuimicos = !d.AdicionalQuimicos.HasValue ? "No Apto" : !d.AdicionalQuimicos.Value ? "No Apto" : "Apto",
+                         CredencialHabilitada ="SI",
                          dc = Todos.Where(w => w != null && w.IdLegajos == d.IdLegajos).Select(w => new
                          {
                              w.ContratoEmpresas.Contrato.Codigo,
@@ -1179,6 +1181,11 @@ public partial class ABMLegajos2 : System.Web.UI.Page
                             ExisteModificacion = true;
                         }
                         LegUpdate.objCompañiaSeguro = dc.Clasificacion.Where(w => w.IdClasificacion == idCombo).FirstOrDefault();
+                    }
+                    else
+                    {
+                        LegUpdate.objCompañiaSeguro = null;
+                        LegUpdate.CompañiaSeguro = null;
                     }
 
 

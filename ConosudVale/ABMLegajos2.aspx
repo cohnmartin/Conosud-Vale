@@ -1010,7 +1010,7 @@
                                     <telerik:GridTemplateColumn DataField="d.CredVencimiento" HeaderText="Hab. Cred."
                                         UniqueName="HabCredColumn">
                                         <ItemTemplate>
-                                            <asp:Label ID="lblHabCre" runat="server" Style="font-weight: bold" Text='<%# DateTime.Now < Convert.ToDateTime(Eval("d.CredVencimiento")) && Convert.ToDateTime(Eval("d.CredVencimiento")) <= Convert.ToDateTime(Eval("dc.FechaVencimiento")) ? "SÍ": "NO" %>'></asp:Label>
+                                            <asp:Label ID="lblHabCre" runat="server" Style="font-weight: bold" Text='<%# Eval("CredencialHabilitada")%>'></asp:Label>
                                         </ItemTemplate>
                                         <HeaderStyle Width="80px" />
                                         <ItemStyle HorizontalAlign="Center" />
