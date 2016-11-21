@@ -14,7 +14,8 @@ namespace Entidades
             {
                 return Helper.ToCapitalize(this.Apellido.ToLower()) + ", " + Helper.ToCapitalize(this.Nombre.ToLower());
             }
-            set {
+            set
+            {
                 _nombreCompleto = value;
             }
         }
@@ -102,6 +103,26 @@ namespace Entidades
                 }
                 return string.Empty;
             }
+        }
+
+        public string getDescripcionSeguro
+        {
+            get
+            {
+                //<sessionState mode="SQLServer" timeout="20" allowCustomSqlDatabase="true" sqlConnectionString="Data Source=localhost;Initial Catalog=wi871133_ASPState;Integrated Security=SSPI;" cookieless="false" />
+
+                if (this.NroPoliza != null && this.NroPoliza.Trim() != "" && this.CompañiaSeguro != null)
+                {
+                    //lblSeguro.Value = "Acc Per:";
+                    return this.NroPoliza + " - " + this.objCompañiaSeguro.Descripcion.Trim();
+                }
+                else
+                {
+                    //lblSeguro.Value = "ART:";
+                    return this.objEmpresaLegajo.DescArt;
+                }
+            }
+
         }
 
     }

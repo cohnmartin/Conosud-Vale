@@ -66,6 +66,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Dlls\Telerik.Reporting.dll</HintPath>
     </Reference>
+    <Reference Include="Telerik.Reporting.Design">
+      <HintPath>..\Dlls\Telerik.Reporting.Design.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Reporting.Design.Components">
+      <HintPath>..\Dlls\Telerik.Reporting.Design.Components.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AltasBajasLegajosTemp.cs" />

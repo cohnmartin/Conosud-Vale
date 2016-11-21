@@ -13,23 +13,23 @@ namespace Entidades
             get
             {
                 
-
-                
                 if (this.Seguros != null)
                 {
+
                     Seguros segART = this.Seguros.Where(w => w.objTipoSeguro != null && w.objTipoSeguro.Descripcion.Contains("ART")).FirstOrDefault();
                     if (segART != null)
                     {
-                        if (segART.objCompañia != null)
-                            return segART.NroPoliza + " - " + segART.objCompañia.Descripcion;
+                        if (segART.objCompañiaReference != null)
+                            //return segART.NroPoliza + " - " + segART.objCompañia.Descripcion;
+                            return segART.objCompañia.Descripcion;
                         else
-                            return segART.NroPoliza;
+                            return "Sin Asignar";
                     }
                     else
-                        return "Sin Asignar";
+                        return "Sin Asignar no econtro ART";
                 }
                 else
-                    return "Sin Asignar";
+                    return "Sin Asignar no tiene el seguro la empresa";
             }
         }
 
@@ -40,7 +40,8 @@ namespace Entidades
                 Seguros segART = this.Seguros.Where(w => w.objTipoSeguro != null && w.objTipoSeguro.Descripcion.Contains("Vida")).FirstOrDefault();
                 if (segART != null)
                 {
-                    return segART.NroPoliza + " - " + segART.objCompañia != null ? segART.objCompañia.Descripcion : "";
+                    //return segART.NroPoliza + " - " + segART.objCompañia != null ? segART.objCompañia.Descripcion : "";
+                    return segART.objCompañia != null ? segART.objCompañia.Descripcion : "Sin Asignar";
                 }
                 else
                     return "Sin Asignar";

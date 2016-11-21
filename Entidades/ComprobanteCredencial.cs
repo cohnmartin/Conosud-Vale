@@ -26,6 +26,12 @@ namespace Entidades
             //
         }
 
+        public static string Greet(string name)
+        {
+            return string.Format("Hello, {0}", name);
+        }
+
+
         public void InitReport(object img, List<CursosLegajos> Cursos, Legajos Leg)
         {
             pictureBox5.Value = img;
@@ -38,17 +44,19 @@ namespace Entidades
                                         Cursos = c.objCurso.Descripcion
                                     }).ToList();
 
+            txtFechaImpresion.Value = "Fecha Emisión:"  + DateTime.Now.ToShortDateString();
+            txtFechaImpresion1.Value = "Fecha Emisión:" + DateTime.Now.ToShortDateString();
 
-            if (Leg.NroPoliza!= null &&  Leg.NroPoliza.Trim() != "" && Leg.CompañiaSeguro != null)
-            {
-                lblSeguro.Value = "Acc Per:";
-                txtSeguro.Value = Leg.NroPoliza + " - " + Leg.objCompañiaSeguro.Descripcion.Trim();
-            }
-            else
-            {
-                lblSeguro.Value = "ART:";
-                txtSeguro.Value = Leg.objEmpresaLegajo.DescArt;
-            }
+            //if (Leg.NroPoliza!= null &&  Leg.NroPoliza.Trim() != "" && Leg.CompañiaSeguro != null)
+            //{
+            //    lblSeguro.Value = "Acc Per:";
+            //    txtSeguro.Value = Leg.NroPoliza + " - " + Leg.objCompañiaSeguro.Descripcion.Trim();
+            //}
+            //else
+            //{
+            //    lblSeguro.Value = "ART:";
+            //    txtSeguro.Value = Leg.objEmpresaLegajo.DescArt;
+            //}
 
         }
     }
