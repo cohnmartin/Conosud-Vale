@@ -14,7 +14,7 @@
      <div id="content" >
         <center id="center">
             <telerik:ReportViewer ID="ReportViewer1" runat="server"  style="border:1px solid #ccc;" 
-			width="99%" Height="360px"  ProgressText="Generando Reporte..." ZoomPercent="85"
+			width="99%" Height="360px"  ProgressText="Generando Reporte..." ZoomPercent="65"
                 ShowParametersButton="False" ShowPrintButton="True" ShowRefreshButton="False" 
                 ShowZoomSelect="False" ShowExportGroup="true" ShowNavigationGroup="false"   >
                <Resources ExportButtonText="Exportar" 

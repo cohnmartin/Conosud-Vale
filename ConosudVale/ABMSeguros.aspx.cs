@@ -10,17 +10,20 @@ using Telerik.Web.UI;
 
 public partial class ABMSeguros : System.Web.UI.Page
 {
+    private EntidadesConosud _Contexto;
+
     public EntidadesConosud Contexto
     {
         get
         {
-            if (Session["Contexto"] != null)
-                return (EntidadesConosud)Session["Contexto"];
-            else
+
+            if (_Contexto == null)
             {
-                Session["Contexto"] = new EntidadesConosud();
-                return (EntidadesConosud)Session["Contexto"];
+                _Contexto = new EntidadesConosud();
+                return _Contexto;
             }
+            else
+                return _Contexto;
         }
     }
 
@@ -39,10 +42,10 @@ public partial class ABMSeguros : System.Web.UI.Page
             else
             {
                 trFiltro.Style.Add(HtmlTextWriterStyle.Display, "block");
-                
+
 
             }
-            
+
         }
 
     }
@@ -96,7 +99,7 @@ public partial class ABMSeguros : System.Web.UI.Page
                         }).Take(10).ToList();
         }
 
-        
+
 
         if (((Telerik.Web.UI.ControlItemContainer)(o)).ID != "cboEmpresaContratista")
         {
@@ -226,7 +229,7 @@ public partial class ABMSeguros : System.Web.UI.Page
             {
                 IdEmpresa = long.Parse(empresa);
             }
-        
+
         }
 
         if (IdEmpresa > 0)
@@ -290,91 +293,95 @@ public partial class ABMSeguros : System.Web.UI.Page
                     Descipcion, string FechaInicial, string FechaVencimiento, string FechaUltimoPago, string
                     IdEmpresa, string IdSeguro)
     {
-
-        if (IdSeguro == "-1")
+        using (EntidadesConosud dc = new EntidadesConosud())
         {
 
-            Seguros newSeguro = new Seguros();
-            newSeguro.Descripcion = Descipcion;
-            newSeguro.NroPoliza = NroPoliza;
 
 
-            if (IdCopañia != "")
-                newSeguro.Compañia = long.Parse(IdCopañia);
+            if (IdSeguro == "-1")
+            {
 
-            if (IdEmpresa != "")
-                newSeguro.EmpresaContratista = long.Parse(IdEmpresa);
-
-            if (IdTipoSeguro != "")
-                newSeguro.TipoSeguro = long.Parse(IdTipoSeguro);
+                Seguros newSeguro = new Seguros();
+                newSeguro.Descripcion = Descipcion;
+                newSeguro.NroPoliza = NroPoliza;
 
 
+                if (IdCopañia != "")
+                    newSeguro.Compañia = long.Parse(IdCopañia);
+
+                if (IdEmpresa != "")
+                    newSeguro.EmpresaContratista = long.Parse(IdEmpresa);
+
+                if (IdTipoSeguro != "")
+                    newSeguro.TipoSeguro = long.Parse(IdTipoSeguro);
 
 
-            if (FechaInicial != "")
-                newSeguro.FechaInicial = Convert.ToDateTime(FechaInicial);
-
-            if (FechaUltimoPago != "")
-                newSeguro.FechaUltimoPago = Convert.ToDateTime(FechaUltimoPago);
-
-            if (FechaVencimiento != "")
-                newSeguro.FechaVencimiento = Convert.ToDateTime(FechaVencimiento);
 
 
-            (HttpContext.Current.Session["Contexto"] as EntidadesConosud).AddToSeguros(newSeguro);
+                if (FechaInicial != "")
+                    newSeguro.FechaInicial = Convert.ToDateTime(FechaInicial);
+
+                if (FechaUltimoPago != "")
+                    newSeguro.FechaUltimoPago = Convert.ToDateTime(FechaUltimoPago);
+
+                if (FechaVencimiento != "")
+                    newSeguro.FechaVencimiento = Convert.ToDateTime(FechaVencimiento);
+
+
+                dc.AddToSeguros(newSeguro);
+            }
+            else
+            {
+                long Id = long.Parse(IdSeguro);
+                Seguros newSeguro = (from v in dc.Seguros
+                                     where v.IdSeguro == Id
+                                     select v).First();
+
+
+                newSeguro.Descripcion = Descipcion;
+                newSeguro.NroPoliza = NroPoliza;
+
+
+                if (IdCopañia.Trim() != "")
+                    newSeguro.Compañia = long.Parse(IdCopañia);
+                else
+                    newSeguro.Compañia = null;
+
+
+                if (IdTipoSeguro != "")
+                    newSeguro.TipoSeguro = long.Parse(IdTipoSeguro);
+                else
+                    newSeguro.TipoSeguro = null;
+
+
+                if (IdEmpresa != "")
+                    newSeguro.EmpresaContratista = long.Parse(IdEmpresa);
+                else
+                    newSeguro.EmpresaContratista = null;
+
+
+
+                if (FechaInicial != "")
+                    newSeguro.FechaInicial = Convert.ToDateTime(FechaInicial);
+                else
+                    newSeguro.FechaInicial = null;
+
+
+                if (FechaVencimiento != "")
+                    newSeguro.FechaVencimiento = Convert.ToDateTime(FechaVencimiento);
+                else
+                    newSeguro.FechaVencimiento = null;
+
+
+                if (FechaUltimoPago != "")
+                    newSeguro.FechaUltimoPago = Convert.ToDateTime(FechaUltimoPago);
+                else
+                    newSeguro.FechaUltimoPago = null;
+
+            }
+
+            dc.SaveChanges();
         }
-        else
-        {
-            long Id = long.Parse(IdSeguro);
-            Seguros newSeguro = (from v in (HttpContext.Current.Session["Contexto"] as EntidadesConosud).Seguros
-                                 where v.IdSeguro == Id
-                                 select v).First();
-
-
-            newSeguro.Descripcion = Descipcion;
-            newSeguro.NroPoliza = NroPoliza;
-
-
-            if (IdCopañia.Trim() != "")
-                newSeguro.Compañia = long.Parse(IdCopañia);
-            else
-                newSeguro.Compañia = null;
-
-
-            if (IdTipoSeguro != "")
-                newSeguro.TipoSeguro = long.Parse(IdTipoSeguro);
-            else
-                newSeguro.TipoSeguro = null;
-
-
-            if (IdEmpresa != "")
-                newSeguro.EmpresaContratista = long.Parse(IdEmpresa);
-            else
-                newSeguro.EmpresaContratista = null;
-
-
-
-            if (FechaInicial != "")
-                newSeguro.FechaInicial = Convert.ToDateTime(FechaInicial);
-            else
-                newSeguro.FechaInicial = null;
-
-
-            if (FechaVencimiento != "")
-                newSeguro.FechaVencimiento = Convert.ToDateTime(FechaVencimiento);
-            else
-                newSeguro.FechaVencimiento = null;
-
-
-            if (FechaUltimoPago != "")
-                newSeguro.FechaUltimoPago = Convert.ToDateTime(FechaUltimoPago);
-            else
-                newSeguro.FechaUltimoPago = null;
-
-        }
-
-        (HttpContext.Current.Session["Contexto"] as EntidadesConosud).SaveChanges();
-
     }
 
 }

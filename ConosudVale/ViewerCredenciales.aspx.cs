@@ -49,9 +49,19 @@ public partial class ViewerCredenciales : System.Web.UI.Page
                 {
                     
                     long id = long.Parse(Request.QueryString["IdLegajo"].ToString());
-                    List<Legajos> Legs = (from U in Contexto.Legajos where U.IdLegajos == id select U).ToList();
+
+                    List<Legajos> Legs = (from U in Contexto.Legajos.Include("objEmpresaLegajo").Include("objEmpresaLegajo.Seguros")
+                                          .Include("objCompañiaSeguro").Include("objEmpresaLegajo.Seguros.objTipoSeguro")
+                                          .Include("objEmpresaLegajo.Seguros.objCompañia")
+                                          where U.IdLegajos == id select U).ToList();
+
                     ComprobanteCredencial rep = null;
                     List<CursosLegajos> cursos = Legs.First().CursosLegajos.Where(c => c.Aprobado).ToList();
+                    
+                    /// Esto lo hago para obligar a cargar todos los objetos, ya que en producción dado a que se utiliza
+                    /// sesiones en base de datos, no se porque con lo reportes no carga bien los objetos.
+                    string a =  Legs.First().objEmpresaLegajo.DescArt;
+                    
                     if (Legs.First().RutaFoto != null)
                     {
                         string ruta = Server.MapPath("ImagenesLegajos") + "/" + Legs.First().RutaFoto;
@@ -68,6 +78,7 @@ public partial class ViewerCredenciales : System.Web.UI.Page
 
                     rep.DataSource = Legs;
                     this.ReportViewer1.Report = rep;
+                    this.ReportViewer1.RefreshReport();
                     //Legajos a;  a.CredVencimiento
                 }
                 else if (Request.QueryString["IdVehiculoEquipo"] != null)
