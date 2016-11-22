@@ -478,30 +478,42 @@ public partial class ABMLegajos2 : System.Web.UI.Page
     public string CalcularHabilitaacionCredencial(Legajos leg, List<ContEmpLegajos> contEmpLeg)
     {
         List<DateTime?> allFechasCalculo = new List<DateTime?>();
-        
-        DateTime? fechaAltaMedica = leg.FechaUltimoExamen.Value.AddYears(1);
+
+        DateTime? fechaVencimientoContrato = null;
+        DateTime? fechaAltaMedica = leg.FechaUltimoExamen != null ? leg.FechaUltimoExamen.Value.AddYears(1) : (DateTime?)null;
         DateTime? fechaRac = leg.CursosLegajos.Min(w => w.FechaVencimiento);
-        DateTime? fechaSeguro = leg.CompañiaSeguro != null && leg.FechaVencimiento != null ? leg.FechaVencimiento.Value : (DateTime?)null;
-        if (fechaSeguro == null)
+        var contratoActivo = contEmpLeg.Where(w => w != null && w.IdLegajos == leg.IdLegajos).LastOrDefault();
+        if (contratoActivo != null)
         {
 
-            Seguros segART = leg.objContEmpLegajos.Last().ContratoEmpresas.Empresa.Seguros.Where(w => w.objTipoSeguro != null && w.objTipoSeguro.Descripcion.Contains("ART")).FirstOrDefault();
-            fechaSeguro = segART.FechaVencimiento;
+            DateTime? fechaSeguro = leg.CompañiaSeguro != null && leg.FechaVencimiento != null ? leg.FechaVencimiento.Value : (DateTime?)null;
+            if (fechaSeguro == null)
+            {
 
+                Seguros segART = leg.objContEmpLegajos.Last().ContratoEmpresas.Empresa.Seguros.Where(w => w.objTipoSeguro != null && w.objTipoSeguro.Descripcion.Contains("ART")).FirstOrDefault();
+                if (segART!= null)
+                    fechaSeguro = segART.FechaVencimiento;
+
+            }
+
+            fechaVencimientoContrato = contratoActivo.ContratoEmpresas.Contrato.Prorroga.HasValue && contratoActivo.ContratoEmpresas.Contrato.Prorroga.Value > contratoActivo.ContratoEmpresas.Contrato.FechaVencimiento ? contratoActivo.ContratoEmpresas.Contrato.Prorroga : contratoActivo.ContratoEmpresas.Contrato.FechaVencimiento;
+
+            allFechasCalculo.Add(fechaAltaMedica);
+            allFechasCalculo.Add(fechaRac);
+            allFechasCalculo.Add(fechaSeguro);
+            allFechasCalculo.Add(fechaVencimientoContrato);
+            allFechasCalculo.Add(leg.CredVencimiento);
+
+            DateTime minFecha = allFechasCalculo.Where(w => w != null).Min(w => w.Value);
+
+            return DateTime.Now < minFecha ? "SI" : "NO";
         }
+        else
+            return "NO";
 
-        var contratoActivo = contEmpLeg.Where(w => w != null && w.IdLegajos == leg.IdLegajos).LastOrDefault();
-        DateTime? fechaVencimientoContrato = contratoActivo.ContratoEmpresas.Contrato.Prorroga.HasValue && contratoActivo.ContratoEmpresas.Contrato.Prorroga.Value > contratoActivo.ContratoEmpresas.Contrato.FechaVencimiento ? contratoActivo.ContratoEmpresas.Contrato.Prorroga : contratoActivo.ContratoEmpresas.Contrato.FechaVencimiento;
 
-        allFechasCalculo.Add(fechaAltaMedica);
-        allFechasCalculo.Add(fechaRac);
-        allFechasCalculo.Add(fechaSeguro);
-        allFechasCalculo.Add(fechaVencimientoContrato);
-        allFechasCalculo.Add(leg.CredVencimiento);
 
-        DateTime minFecha = allFechasCalculo.Min(w => w.Value);
-
-        return DateTime.Now > minFecha ? "SI" : "NO";
+        
     }
 
     private void BindResults()
