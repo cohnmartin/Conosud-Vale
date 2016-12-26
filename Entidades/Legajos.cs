@@ -40,7 +40,10 @@ namespace Entidades
             {
                 if (this.AutorizadoCond.HasValue && this.AutorizadoCond.Value)
                 {
-                    return "SI";
+                    if (this.FechaVencimientoCarnet.HasValue && this.FechaVencimientoCarnet.Value > DateTime.Now)
+                        return "SI  (Vto: " + this.FechaVencimientoCarnet.Value.ToShortDateString() + ")";
+                    else
+                        return "NO";
                 }
                 return "NO";
             }
@@ -121,6 +124,52 @@ namespace Entidades
                     //lblSeguro.Value = "ART:";
                     return this.objEmpresaLegajo.DescArt;
                 }
+            }
+
+        }
+
+        public string PrimerVencimientoCredencial
+        {
+            get
+            {
+
+                List<DateTime?> allFechasCalculo = new List<DateTime?>();
+                DateTime? fechaVencimientoContrato = null;
+                DateTime? fechaAltaMedica = this.FechaUltimoExamen != null ? this.FechaUltimoExamen.Value.AddYears(1) : (DateTime?)null;
+
+                if (!this.CursosLegajos.IsLoaded) this.CursosLegajos.Load();
+                DateTime? fechaRac = this.CursosLegajos.Min(w => w.FechaVencimiento);
+                
+                if (!this.objContEmpLegajos.IsLoaded) this.objContEmpLegajos.Load();
+                var contratoActivo = this.objContEmpLegajos.Where(w => w != null && w.IdLegajos == this.IdLegajos).LastOrDefault();
+                if (contratoActivo != null)
+                {
+
+                    DateTime? fechaSeguro = this.CompañiaSeguro != null && this.FechaVencimiento != null ? this.FechaVencimiento.Value : (DateTime?)null;
+                    if (fechaSeguro == null)
+                    {
+
+                        Seguros segART = this.objContEmpLegajos.Last().ContratoEmpresas.Empresa.Seguros.Where(w => w.objTipoSeguro != null && w.objTipoSeguro.Descripcion.Contains("ART")).FirstOrDefault();
+                        if (segART != null)
+                            fechaSeguro = segART.FechaVencimiento;
+
+                    }
+
+                    fechaVencimientoContrato = contratoActivo.ContratoEmpresas.Contrato.Prorroga.HasValue && contratoActivo.ContratoEmpresas.Contrato.Prorroga.Value > contratoActivo.ContratoEmpresas.Contrato.FechaVencimiento ? contratoActivo.ContratoEmpresas.Contrato.Prorroga : contratoActivo.ContratoEmpresas.Contrato.FechaVencimiento;
+
+                    allFechasCalculo.Add(fechaAltaMedica);
+                    allFechasCalculo.Add(fechaRac);
+                    allFechasCalculo.Add(fechaSeguro);
+                    allFechasCalculo.Add(fechaVencimientoContrato);
+                    allFechasCalculo.Add(this.CredVencimiento);
+
+                    DateTime minFecha = allFechasCalculo.Where(w => w != null).Min(w => w.Value);
+
+                    return minFecha.ToShortDateString();
+                }
+                else
+                    return DateTime.Now.ToShortDateString();
+               
             }
 
         }

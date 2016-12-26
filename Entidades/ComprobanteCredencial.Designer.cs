@@ -41,6 +41,7 @@ namespace Entidades
             this.textBox52 = new Telerik.Reporting.TextBox();
             this.pictureBox2 = new Telerik.Reporting.PictureBox();
             this.textBox2 = new Telerik.Reporting.TextBox();
+            this.txtFechaImpresion1 = new Telerik.Reporting.TextBox();
             this.panel9 = new Telerik.Reporting.Panel();
             this.textBox51 = new Telerik.Reporting.TextBox();
             this.panel10 = new Telerik.Reporting.Panel();
@@ -60,6 +61,7 @@ namespace Entidades
             this.textBox39 = new Telerik.Reporting.TextBox();
             this.pictureBox6 = new Telerik.Reporting.PictureBox();
             this.textBox1 = new Telerik.Reporting.TextBox();
+            this.txtFechaImpresion = new Telerik.Reporting.TextBox();
             this.panel2 = new Telerik.Reporting.Panel();
             this.textBox13 = new Telerik.Reporting.TextBox();
             this.textBox14 = new Telerik.Reporting.TextBox();
@@ -91,8 +93,6 @@ namespace Entidades
             this.textBox35 = new Telerik.Reporting.TextBox();
             this.textBox36 = new Telerik.Reporting.TextBox();
             this.textBox65 = new Telerik.Reporting.TextBox();
-            this.txtFechaImpresion = new Telerik.Reporting.TextBox();
-            this.txtFechaImpresion1 = new Telerik.Reporting.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
             // 
             // reportHeader
@@ -293,6 +293,17 @@ namespace Entidades
             this.textBox2.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Middle;
             this.textBox2.Value = "Auditoría realizada por CONO SUD S.R.L.";
             // 
+            // txtFechaImpresion1
+            // 
+            this.txtFechaImpresion1.Location = new Telerik.Reporting.Drawing.PointU(new Telerik.Reporting.Drawing.Unit(1.9999990463256836D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(72.231170654296875D, Telerik.Reporting.Drawing.UnitType.Mm));
+            this.txtFechaImpresion1.Name = "txtFechaImpresion1";
+            this.txtFechaImpresion1.Size = new Telerik.Reporting.Drawing.SizeU(new Telerik.Reporting.Drawing.Unit(58.857273101806641D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(4.9979820251464844D, Telerik.Reporting.Drawing.UnitType.Mm));
+            this.txtFechaImpresion1.Style.Color = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(87)))), ((int)(((byte)(181)))));
+            this.txtFechaImpresion1.Style.Font.Size = new Telerik.Reporting.Drawing.Unit(8D, Telerik.Reporting.Drawing.UnitType.Point);
+            this.txtFechaImpresion1.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Left;
+            this.txtFechaImpresion1.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Bottom;
+            this.txtFechaImpresion1.Value = "Empresa al Servicio de:";
+            // 
             // panel9
             // 
             this.panel9.Items.AddRange(new Telerik.Reporting.ReportItemBase[] {
@@ -381,7 +392,7 @@ namespace Entidades
             this.textBox55.Style.Color = System.Drawing.Color.Black;
             this.textBox55.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Left;
             this.textBox55.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Middle;
-            this.textBox55.Value = "= IsNull(Fields.CredVencimiento, \'Sin Vencimiento\')";
+            this.textBox55.Value = "= IsNull(Fields.PrimerVencimientoCredencial, \'Sin Vencimiento\')";
             // 
             // textBox56
             // 
@@ -390,7 +401,7 @@ namespace Entidades
             this.textBox56.Size = new Telerik.Reporting.Drawing.SizeU(new Telerik.Reporting.Drawing.Unit(3.4189159870147705D, Telerik.Reporting.Drawing.UnitType.Cm), new Telerik.Reporting.Drawing.Unit(0.5D, Telerik.Reporting.Drawing.UnitType.Cm));
             this.textBox56.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Left;
             this.textBox56.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Middle;
-            this.textBox56.Value = "= IIf(IsNull(Fields.AutorizadoCond, \'No\') = False,\'No\',\'Si\')\r\n";
+            this.textBox56.Value = "=Fields.AutorizadoConducir";
             // 
             // txtSeguro
             // 
@@ -523,6 +534,17 @@ namespace Entidades
             this.textBox1.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Center;
             this.textBox1.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Middle;
             this.textBox1.Value = "Auditoría realizada por CONO SUD S.R.L.";
+            // 
+            // txtFechaImpresion
+            // 
+            this.txtFechaImpresion.Location = new Telerik.Reporting.Drawing.PointU(new Telerik.Reporting.Drawing.Unit(2.7651896476745605D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(72.231147766113281D, Telerik.Reporting.Drawing.UnitType.Mm));
+            this.txtFechaImpresion.Name = "txtFechaImpresion";
+            this.txtFechaImpresion.Size = new Telerik.Reporting.Drawing.SizeU(new Telerik.Reporting.Drawing.Unit(57.234813690185547D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(4.9979820251464844D, Telerik.Reporting.Drawing.UnitType.Mm));
+            this.txtFechaImpresion.Style.Color = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(87)))), ((int)(((byte)(181)))));
+            this.txtFechaImpresion.Style.Font.Size = new Telerik.Reporting.Drawing.Unit(8D, Telerik.Reporting.Drawing.UnitType.Point);
+            this.txtFechaImpresion.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Left;
+            this.txtFechaImpresion.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Bottom;
+            this.txtFechaImpresion.Value = "Empresa al Servicio de:";
             // 
             // panel2
             // 
@@ -873,28 +895,6 @@ namespace Entidades
             this.textBox65.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Left;
             this.textBox65.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Middle;
             this.textBox65.Value = "ART:";
-            // 
-            // txtFechaImpresion
-            // 
-            this.txtFechaImpresion.Location = new Telerik.Reporting.Drawing.PointU(new Telerik.Reporting.Drawing.Unit(2.7651896476745605D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(72.231147766113281D, Telerik.Reporting.Drawing.UnitType.Mm));
-            this.txtFechaImpresion.Name = "txtFechaImpresion";
-            this.txtFechaImpresion.Size = new Telerik.Reporting.Drawing.SizeU(new Telerik.Reporting.Drawing.Unit(57.234813690185547D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(4.9979820251464844D, Telerik.Reporting.Drawing.UnitType.Mm));
-            this.txtFechaImpresion.Style.Color = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(87)))), ((int)(((byte)(181)))));
-            this.txtFechaImpresion.Style.Font.Size = new Telerik.Reporting.Drawing.Unit(8D, Telerik.Reporting.Drawing.UnitType.Point);
-            this.txtFechaImpresion.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Left;
-            this.txtFechaImpresion.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Bottom;
-            this.txtFechaImpresion.Value = "Empresa al Servicio de:";
-            // 
-            // txtFechaImpresion1
-            // 
-            this.txtFechaImpresion1.Location = new Telerik.Reporting.Drawing.PointU(new Telerik.Reporting.Drawing.Unit(1.9999990463256836D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(72.231170654296875D, Telerik.Reporting.Drawing.UnitType.Mm));
-            this.txtFechaImpresion1.Name = "txtFechaImpresion1";
-            this.txtFechaImpresion1.Size = new Telerik.Reporting.Drawing.SizeU(new Telerik.Reporting.Drawing.Unit(58.857273101806641D, Telerik.Reporting.Drawing.UnitType.Mm), new Telerik.Reporting.Drawing.Unit(4.9979820251464844D, Telerik.Reporting.Drawing.UnitType.Mm));
-            this.txtFechaImpresion1.Style.Color = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(87)))), ((int)(((byte)(181)))));
-            this.txtFechaImpresion1.Style.Font.Size = new Telerik.Reporting.Drawing.Unit(8D, Telerik.Reporting.Drawing.UnitType.Point);
-            this.txtFechaImpresion1.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Left;
-            this.txtFechaImpresion1.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Bottom;
-            this.txtFechaImpresion1.Value = "Empresa al Servicio de:";
             // 
             // ComprobanteCredencial
             // 

@@ -604,22 +604,6 @@ namespace Entidades
         /// <summary>
         /// No hay documentación de metadatos disponible.
         /// </summary>
-        public ObjectSet<Posicionamiento> Posicionamiento
-        {
-            get
-            {
-                if ((_Posicionamiento == null))
-                {
-                    _Posicionamiento = base.CreateObjectSet<Posicionamiento>("Posicionamiento");
-                }
-                return _Posicionamiento;
-            }
-        }
-        private ObjectSet<Posicionamiento> _Posicionamiento;
-    
-        /// <summary>
-        /// No hay documentación de metadatos disponible.
-        /// </summary>
         public ObjectSet<SegContextos> SegContextos
         {
             get
@@ -875,14 +859,6 @@ namespace Entidades
         public void AddToInstructivos(Instructivos instructivos)
         {
             base.AddObject("Instructivos", instructivos);
-        }
-    
-        /// <summary>
-        /// Método desusado para agregar un nuevo objeto al EntitySet Posicionamiento. Considere la posibilidad de usar el método .Add de la propiedad ObjectSet&lt;T&gt; asociada.
-        /// </summary>
-        public void AddToPosicionamiento(Posicionamiento posicionamiento)
-        {
-            base.AddObject("Posicionamiento", posicionamiento);
         }
     
         /// <summary>
@@ -7757,6 +7733,30 @@ namespace Entidades
         private Nullable<global::System.Boolean> _AdicionalQuimicos;
         partial void OnAdicionalQuimicosChanging(Nullable<global::System.Boolean> value);
         partial void OnAdicionalQuimicosChanged();
+    
+        /// <summary>
+        /// No hay documentación de metadatos disponible.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public Nullable<global::System.DateTime> FechaVencimientoCarnet
+        {
+            get
+            {
+                return _FechaVencimientoCarnet;
+            }
+            set
+            {
+                OnFechaVencimientoCarnetChanging(value);
+                ReportPropertyChanging("FechaVencimientoCarnet");
+                _FechaVencimientoCarnet = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("FechaVencimientoCarnet");
+                OnFechaVencimientoCarnetChanged();
+            }
+        }
+        private Nullable<global::System.DateTime> _FechaVencimientoCarnet;
+        partial void OnFechaVencimientoCarnetChanging(Nullable<global::System.DateTime> value);
+        partial void OnFechaVencimientoCarnetChanged();
 
         #endregion
 
@@ -8621,135 +8621,6 @@ namespace Entidades
 
         #endregion
 
-    }
-    
-    /// <summary>
-    /// No hay documentación de metadatos disponible.
-    /// </summary>
-    [EdmEntityTypeAttribute(NamespaceName="EntidadesTG", Name="Posicionamiento")]
-    [Serializable()]
-    [DataContractAttribute(IsReference=true)]
-    public partial class Posicionamiento : EntityObject
-    {
-        #region Método de generador
-    
-        /// <summary>
-        /// Crear un nuevo objeto Posicionamiento.
-        /// </summary>
-        /// <param name="id">Valor inicial de la propiedad Id.</param>
-        public static Posicionamiento CreatePosicionamiento(global::System.Int64 id)
-        {
-            Posicionamiento posicionamiento = new Posicionamiento();
-            posicionamiento.Id = id;
-            return posicionamiento;
-        }
-
-        #endregion
-
-        #region Propiedades primitivas
-    
-        /// <summary>
-        /// No hay documentación de metadatos disponible.
-        /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
-        [DataMemberAttribute()]
-        public global::System.Int64 Id
-        {
-            get
-            {
-                return _Id;
-            }
-            set
-            {
-                if (_Id != value)
-                {
-                    OnIdChanging(value);
-                    ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
-                    ReportPropertyChanged("Id");
-                    OnIdChanged();
-                }
-            }
-        }
-        private global::System.Int64 _Id;
-        partial void OnIdChanging(global::System.Int64 value);
-        partial void OnIdChanged();
-    
-        /// <summary>
-        /// No hay documentación de metadatos disponible.
-        /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
-        [DataMemberAttribute()]
-        public Nullable<global::System.DateTime> Fecha
-        {
-            get
-            {
-                return _Fecha;
-            }
-            set
-            {
-                OnFechaChanging(value);
-                ReportPropertyChanging("Fecha");
-                _Fecha = StructuralObject.SetValidValue(value);
-                ReportPropertyChanged("Fecha");
-                OnFechaChanged();
-            }
-        }
-        private Nullable<global::System.DateTime> _Fecha;
-        partial void OnFechaChanging(Nullable<global::System.DateTime> value);
-        partial void OnFechaChanged();
-    
-        /// <summary>
-        /// No hay documentación de metadatos disponible.
-        /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
-        [DataMemberAttribute()]
-        public Nullable<global::System.Double> Longitud
-        {
-            get
-            {
-                return _Longitud;
-            }
-            set
-            {
-                OnLongitudChanging(value);
-                ReportPropertyChanging("Longitud");
-                _Longitud = StructuralObject.SetValidValue(value);
-                ReportPropertyChanged("Longitud");
-                OnLongitudChanged();
-            }
-        }
-        private Nullable<global::System.Double> _Longitud;
-        partial void OnLongitudChanging(Nullable<global::System.Double> value);
-        partial void OnLongitudChanged();
-    
-        /// <summary>
-        /// No hay documentación de metadatos disponible.
-        /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
-        [DataMemberAttribute()]
-        public Nullable<global::System.Double> Latitud
-        {
-            get
-            {
-                return _Latitud;
-            }
-            set
-            {
-                OnLatitudChanging(value);
-                ReportPropertyChanging("Latitud");
-                _Latitud = StructuralObject.SetValidValue(value);
-                ReportPropertyChanged("Latitud");
-                OnLatitudChanged();
-            }
-        }
-        private Nullable<global::System.Double> _Latitud;
-        partial void OnLatitudChanging(Nullable<global::System.Double> value);
-        partial void OnLatitudChanged();
-
-        #endregion
-
-    
     }
     
     /// <summary>

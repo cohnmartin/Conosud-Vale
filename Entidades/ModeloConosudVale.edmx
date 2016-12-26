@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="EntidadesConosud.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2005" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
+    <Schema Namespace="EntidadesConosud.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
         <EntityContainer Name="EntidadesConosudStoreContainer">
           <EntitySet Name="ArchivosAdjuntos" EntityType="EntidadesConosud.Store.ArchivosAdjuntos" store:Type="Tables" Schema="dbo" />
           <EntitySet Name="ArchivosSueldos" EntityType="EntidadesConosud.Store.ArchivosSueldos" store:Type="Tables" Schema="dbo" />
@@ -26,7 +26,6 @@
           <EntitySet Name="Legajos" EntityType="EntidadesConosud.Store.Legajos" store:Type="Tables" Schema="dbo" />
           <EntitySet Name="LegajosImp" EntityType="EntidadesConosud.Store.LegajosImp" store:Type="Tables" Schema="dbo" />
           <EntitySet Name="Plantilla" EntityType="EntidadesConosud.Store.Plantilla" store:Type="Tables" Schema="dbo" />
-          <EntitySet Name="Posicionamiento" EntityType="EntidadesConosud.Store.Posicionamiento" store:Type="Tables" Schema="dbo" />
           <EntitySet Name="RolesPlanilla" EntityType="EntidadesConosud.Store.RolesPlanilla" store:Type="Tables" Schema="dbo" />
           <EntitySet Name="SegContextos" EntityType="EntidadesConosud.Store.SegContextos" store:Type="Tables" Schema="dbo" />
           <EntitySet Name="SegMenu" EntityType="EntidadesConosud.Store.SegMenu" store:Type="Tables" Schema="dbo" />
@@ -518,6 +517,7 @@
           <Property Name="EstudiosBasicos" Type="bit" />
           <Property Name="ComplementarioRacs" Type="bit" />
           <Property Name="AdicionalQuimicos" Type="bit" />
+          <Property Name="FechaVencimientoCarnet" Type="datetime" />
         </EntityType>
         <EntityType Name="LegajosImp">
           <Key>
@@ -541,15 +541,6 @@
           <Property Name="IdCategoria" Type="bigint" />
           <Property Name="Riesgo" Type="varchar" MaxLength="50" />
           <Property Name="Grado" Type="int" />
-        </EntityType>
-        <EntityType Name="Posicionamiento">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="Fecha" Type="datetime" />
-          <Property Name="Longitud" Type="float" />
-          <Property Name="Latitud" Type="float" />
         </EntityType>
         <EntityType Name="RolesPlanilla">
           <Key>
@@ -680,8 +671,8 @@
           <Property Name="IDENTIFICADOR" Type="nvarchar" Nullable="false" MaxLength="255" />
           <Property Name="ACTIVO/BAJA" Type="nvarchar" MaxLength="255" />
         </EntityType>
-        <!--Errors Found During Generation:
-      warning 6002: The table/view 'ConosudSitioVale.dbo.View_EmpresasContratos' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+        <!--Se encontraron errores durante la generación:
+      advertencia 6002: La tabla o vista 'ConosudVale.dbo.View_EmpresasContratos' no tiene ninguna clave principal definida. Se ha inferido la clave y la definición se creó como vista o tabla de solo lectura.
       -->
         <EntityType Name="View_EmpresasContratos">
           <Key>
@@ -1541,7 +1532,6 @@
           <EntitySet Name="View_EmpresasContratos" EntityType="EntidadesTG.View_EmpresasContratos" />
           <EntitySet Name="IngresosEventuales" EntityType="EntidadesTG.IngresosEventuales" />
           <EntitySet Name="Instructivos" EntityType="EntidadesTG.Instructivos" />
-          <EntitySet Name="Posicionamiento" EntityType="EntidadesTG.Posicionamiento" />
           <EntitySet Name="SegContextos" EntityType="EntidadesTG.SegContextos" />
           <AssociationSet Name="FK_SegContextos_SegUsuario" Association="EntidadesTG.FK_SegContextos_SegUsuario">
             <End Role="SegUsuario" EntitySet="SegUsuario" />
@@ -1838,6 +1828,7 @@
           <Property Type="Boolean" Name="EstudiosBasicos" />
           <Property Type="Boolean" Name="ComplementarioRacs" />
           <Property Type="Boolean" Name="AdicionalQuimicos" />
+          <Property Type="DateTime" Name="FechaVencimientoCarnet" />
         </EntityType>
         <EntityType Name="Plantilla">
           <Key>
@@ -2689,15 +2680,6 @@
           <Property Type="DateTime" Name="Fecha" />
           <Property Type="String" Name="Descripcion" MaxLength="5000" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="Posicionamiento">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Type="Int64" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="DateTime" Name="Fecha" />
-          <Property Type="Double" Name="Longitud" />
-          <Property Type="Double" Name="Latitud" />
-        </EntityType>
         <EntityType Name="SegContextos">
           <Key>
             <PropertyRef Name="IdSegContexto" />
@@ -2865,6 +2847,7 @@
             <ScalarProperty Name="AuditadoPor" ColumnName="AuditadoPor" />
           </MappingFragment></EntityTypeMapping></EntitySetMapping>
           <EntitySetMapping Name="Legajos"><EntityTypeMapping TypeName="EntidadesTG.Legajos"><MappingFragment StoreEntitySet="Legajos">
+                <ScalarProperty Name="FechaVencimientoCarnet" ColumnName="FechaVencimientoCarnet" />
                 <ScalarProperty Name="AdicionalQuimicos" ColumnName="AdicionalQuimicos" />
                 <ScalarProperty Name="ComplementarioRacs" ColumnName="ComplementarioRacs" />
                 <ScalarProperty Name="EstudiosBasicos" ColumnName="EstudiosBasicos" />
@@ -3097,16 +3080,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Posicionamiento">
-            <EntityTypeMapping TypeName="EntidadesTG.Posicionamiento">
-              <MappingFragment StoreEntitySet="Posicionamiento">
-                <ScalarProperty Name="Latitud" ColumnName="Latitud" />
-                <ScalarProperty Name="Longitud" ColumnName="Longitud" />
-                <ScalarProperty Name="Fecha" ColumnName="Fecha" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="SegContextos">
             <EntityTypeMapping TypeName="EntidadesTG.SegContextos">
               <MappingFragment StoreEntitySet="SegContextos">
@@ -3137,7 +3110,7 @@
     </Options>
     <!-- Diagram content (shape and connector positions) -->
     <Diagrams>
-      <Diagram Name="ModeloConosudVale" ZoomLevel="121">
+      <Diagram Name="ModeloConosudVale" ZoomLevel="51">
         <EntityTypeShape EntityType="EntidadesTG.ArchivosAdjuntos" Width="1.5" PointX="7.5" PointY="12" Height="1.9802864583333317" IsExpanded="true" />
         <EntityTypeShape EntityType="EntidadesTG.ArchivosSueldos" Width="1.5" PointX="7.5" PointY="21" Height="2.172587890624996" IsExpanded="true" />
         <EntityTypeShape EntityType="EntidadesTG.CabeceraHojasDeRuta" Width="2.25" PointX="7.5" PointY="15.25" Height="4.6725065104166674" IsExpanded="true" />
@@ -3302,8 +3275,8 @@
           <ConnectorPoint PointX="3" PointY="29.902320308834049" />
         </AssociationConnector>
         <AssociationConnector Association="EntidadesTG.FK_ComentariosGral_ContratoEmpresas" ManuallyRouted="false">
-          <ConnectorPoint PointX="7" PointY="18.8818232890625" />
-          <ConnectorPoint PointX="7.25" PointY="18.8818232890625" />
+          <ConnectorPoint PointX="7" PointY="18.881823289062492" />
+          <ConnectorPoint PointX="7.25" PointY="18.881823289062492" />
           <ConnectorPoint PointX="7.25" PointY="15" />
           <ConnectorPoint PointX="10.041666666666666" PointY="15" />
           <ConnectorPoint PointX="10.208333333333334" PointY="15" />
@@ -3315,9 +3288,9 @@
           <ConnectorPoint PointX="13.5468764375" PointY="17" />
         </AssociationConnector>
         <AssociationConnector Association="EntidadesTG.FK_ComentariosGral_Plantilla" ManuallyRouted="false">
-          <ConnectorPoint PointX="9" PointY="8.2401432291666623" />
-          <ConnectorPoint PointX="13.031248875" PointY="8.2401432291666623" />
-          <ConnectorPoint PointX="13.031248875" PointY="17" />
+          <ConnectorPoint PointX="9" PointY="8.3026432291666623" />
+          <ConnectorPoint PointX="12.99218621875" PointY="8.3026432291666623" />
+          <ConnectorPoint PointX="12.99218621875" PointY="17" />
         </AssociationConnector>
         <AssociationConnector Association="EntidadesTG.FK_ContEmpLegajos_ContratoEmpresas" ManuallyRouted="false">
           <ConnectorPoint PointX="7.5" PointY="17.252271763020833" />
@@ -3398,8 +3371,8 @@
           <ConnectorPoint PointX="5.25" PointY="22.687246093749998" />
         </AssociationConnector>
         <AssociationConnector Association="EntidadesTG.FK_HojasDeRuta_Plantilla" ManuallyRouted="false">
-          <ConnectorPoint PointX="9" PointY="8.4950741145833248" />
-          <ConnectorPoint PointX="12.15625" PointY="8.4950741145833248" />
+          <ConnectorPoint PointX="9" PointY="8.7763241145833248" />
+          <ConnectorPoint PointX="12.15625" PointY="8.7763241145833248" />
           <ConnectorPoint PointX="12.15625" PointY="15.5" />
         </AssociationConnector>
         <AssociationConnector Association="EntidadesTG.FK_RolesPlanilla_SegRol" ManuallyRouted="false">
@@ -3546,10 +3519,10 @@
           <ConnectorPoint PointX="11.333333333333334" PointY="14.525940755208339" />
           <ConnectorPoint PointX="12.072916666666666" PointY="14.525940755208339" />
           <ConnectorPoint PointX="12.239583333333334" PointY="14.525940755208339" />
-          <ConnectorPoint PointX="12.947915541666665" PointY="14.525940755208339" />
-          <ConnectorPoint PointX="13.114582208333333" PointY="14.525940755208339" />
-          <ConnectorPoint PointX="14.678255190887136" PointY="14.525940755208339" />
-          <ConnectorPoint PointX="14.678255190887136" PointY="13.326233723958332" />
+          <ConnectorPoint PointX="12.908852885416666" PointY="14.525940755208339" />
+          <ConnectorPoint PointX="13.075519552083334" PointY="14.525940755208339" />
+          <ConnectorPoint PointX="14.432875720443567" PointY="14.525940755208339" />
+          <ConnectorPoint PointX="14.432875720443567" PointY="13.326233723958332" />
         </AssociationConnector>
         <AssociationConnector Association="EntidadesTG.FK_Seguros_Empresa" ManuallyRouted="false" >
           <ConnectorPoint PointX="4.375" PointY="24.420550188802078" />
@@ -3636,7 +3609,6 @@
         <EntityTypeShape EntityType="EntidadesTG.View_EmpresasContratos" Width="1.75" PointX="0.75" PointY="7.75" Height="1.5956835937500102" />
         <EntityTypeShape EntityType="EntidadesTG.IngresosEventuales" Width="1.5" PointX="9.375" PointY="0.75" Height="3.3263964843750102" />
         <EntityTypeShape EntityType="EntidadesTG.Instructivos" Width="1.5" PointX="10.5" PointY="5.75" Height="1.9802864583333246" />
-        <EntityTypeShape EntityType="EntidadesTG.Posicionamiento" Width="1.5" PointX="10.5" PointY="8.75" Height="1.7879850260416674" />
         <EntityTypeShape EntityType="EntidadesTG.SegContextos" Width="1.5" PointX="7.5" PointY="30.125" Height="1.9802864583333246" />
         <AssociationConnector Association="EntidadesTG.FK_SegContextos_SegUsuario" >
           <ConnectorPoint PointX="6.75" PointY="23.492568110576919" />
