@@ -28,50 +28,6 @@ public class AndroidSOAP : System.Web.Services.WebService
         return "Hola Diego: Enviado desde Servidor Conosud";
     }
 
-    [WebMethod]
-    public string GrabarUbicacion(double Latitud, double Longitud, string Fecha)
-    {
-        try
-        {
-            using (EntidadesConosud dc = new EntidadesConosud())
-            {
-                Posicionamiento pos = new Posicionamiento();
-                pos.Fecha = DateTime.Parse(Fecha);
-                pos.Latitud = Latitud;
-                pos.Longitud = Longitud;
-                dc.AddToPosicionamiento(pos);
-
-                dc.SaveChanges();
-
-                return "Ok";
-            }
-        }
-        catch
-        {
-            return "";
-        }
-
-
-    }
-
-    [WebMethod]
-    public List<Posicionamiento> ObtenrUbicacion(DateTime Fecha)
-    {
-        try
-        {
-            using (EntidadesConosud dc = new EntidadesConosud())
-            {
-                return (from p in dc.Posicionamiento
-                        where p.Fecha == Fecha
-                        select p).ToList();
-            }
-        }
-        catch
-        {
-            return null;
-        }
-
-
-    }
+     
 
 }

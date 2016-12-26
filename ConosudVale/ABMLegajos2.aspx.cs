@@ -1209,6 +1209,18 @@ public partial class ABMLegajos2 : System.Web.UI.Page
                     }
 
 
+                    if (txtFechaVenCarnet.SelectedDate != null)
+                    {
+                        if (LegUpdate.FechaVencimientoCarnet != txtFechaVenCarnet.SelectedDate.Value)
+                        {
+                            ExisteModificacion = true;
+                        }
+                        LegUpdate.FechaVencimientoCarnet = txtFechaVenCarnet.SelectedDate.Value;
+                    }
+                    else
+                        LegUpdate.FechaVencimientoCarnet = null;
+
+
                     ////////// Datos Seguro
                     LegUpdate.NroPoliza = txtNroPoliza.Text;
                     LegUpdate.Descripcion = txtDescripcion.Text;
@@ -1431,7 +1443,10 @@ public partial class ABMLegajos2 : System.Web.UI.Page
                 else
                     LegInsert.CredVencimiento = null;
 
-
+                if (txtFechaVenCarnet.SelectedDate != null)
+                    LegInsert.FechaVencimientoCarnet = txtFechaVenCarnet.SelectedDate.Value;
+                else
+                    LegInsert.FechaVencimientoCarnet = null;
 
                 ////////// Datos Seguro
 

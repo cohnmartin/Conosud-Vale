@@ -209,6 +209,7 @@
 
 
                 var cellFechaUltimoExamen = MasterTable.getCellByColumnUniqueName(Item[0], "FechaUltimoExamenColumn");
+                var cellFechaVenCarnet = MasterTable.getCellByColumnUniqueName(Item[0], "FechaVenCarnetColumn");
                 var cellRutaFoto = MasterTable.getCellByColumnUniqueName(Item[0], "RutaFotoColumn");
                 var cellCredVencimiento = MasterTable.getCellByColumnUniqueName(Item[0], "CredVencimientoColumn");
                 var cellObservacionBloqueo = MasterTable.getCellByColumnUniqueName(Item[0], "ObservacionBloqueoColumn");
@@ -393,6 +394,15 @@
                     Fecha = new Date(año, mes, dia);
                     $find("<%= txtFechaUltExa.ClientID%>").set_selectedDate(Fecha);
                 }
+
+                if (cellFechaVenCarnet.outerText.trim() != "") {
+                    dia = parseInt(lTrim0(cellFechaVenCarnet.outerText.substr(0, 2)));
+                    mes = parseInt(lTrim0(cellFechaVenCarnet.outerText.substr(3, 2))) - 1;
+                    año = parseInt(lTrim0(cellFechaVenCarnet.outerText.substr(6, 4)));
+                    Fecha = new Date(año, mes, dia);
+                    $find("<%= txtFechaVenCarnet.ClientID%>").set_selectedDate(Fecha);
+                }
+                
 
                 if (cellFechaNacimiento.outerText.trim() != "") {
                     dia = parseInt(lTrim0(cellFechaNacimiento.outerText.substr(0, 2)));
@@ -818,6 +828,18 @@
             }
 
         }
+
+        function ValidarFecha(objchk) {
+
+            if (objchk.checked == true)
+                $find("<%= txtFechaVenCarnet.ClientID%>").set_selectedDate(new Date());
+            else
+                $find("<%= txtFechaVenCarnet.ClientID%>").set_selectedDate(null);
+
+//            return false;
+            // chkAutorizadoConducir
+        
+        }
     </script>
     <asp:UpdateProgress ID="UpdateProgress2" runat="server" DisplayAfter="50">
         <ProgressTemplate>
@@ -1100,6 +1122,12 @@
                                     <telerik:GridBoundColumn DataField="d.FechaUltimoExamen" UniqueName="FechaUltimoExamenColumn"
                                         HeaderText="Fecha Ult. Exámen" Display="false">
                                     </telerik:GridBoundColumn>
+
+                                    <telerik:GridBoundColumn DataField="d.FechaVencimientoCarnet" UniqueName="FechaVenCarnetColumn"
+                                        HeaderText="Fecha Ven Credencial" Display="false">
+                                    </telerik:GridBoundColumn>
+                                    
+
                                     <telerik:GridBoundColumn DataField="d.RutaFoto" UniqueName="RutaFotoColumn" Display="false">
                                     </telerik:GridBoundColumn>
                                     <telerik:GridBoundColumn DataField="d.EmpresaLegajo" UniqueName="EmpresaLegajoColumn"
@@ -1447,9 +1475,13 @@
                                                     <td width="10%">
                                                         <asp:Label ID="Label37" runat="server" SkinID="lblConosud" Text="Autorizado a Conducir:"></asp:Label>
                                                     </td>
-                                                    <td align="left" width="50%">
-                                                        <asp:CheckBox ID="chkAutorizadoConducir" SkinID="chkConosud" runat="server" Text="">
+                                                    <td align="left" style="display:inline-flex">
+                                                        <asp:CheckBox ID="chkAutorizadoConducir" SkinID="chkConosud" runat="server" Text="" >
                                                         </asp:CheckBox>
+                                                        <asp:Label ID="Label28" runat="server" SkinID="lblConosud" Text="Vencimiento Carnet:" style="padding:5px"></asp:Label>
+                                                        <telerik:RadDatePicker ID="txtFechaVenCarnet" MinDate="1950/1/1" runat="server"
+                                                            ZIndex="922000000">
+                                                        </telerik:RadDatePicker>
                                                     </td>
                                                 </tr>
                                             </tbody>

@@ -68,11 +68,13 @@ public partial class ViewerCredenciales : System.Web.UI.Page
                         Bitmap imgLegajo = new Bitmap(ruta);
 
                         rep = new ComprobanteCredencial();
+                        //var aaa = Legs.First().PrimerVencimientoCredencial;
                         rep.InitReport(imgLegajo, cursos, Legs.First());
                     }
                     else
                     {
                         rep = new ComprobanteCredencial();
+                        //var aaa = Legs.First().PrimerVencimientoCredencial;
                         rep.InitReport(null, cursos, Legs.First());
                     }
 
