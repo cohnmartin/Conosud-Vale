@@ -290,7 +290,7 @@ public partial class ABMLegajos2 : System.Web.UI.Page
                 {
 
                     DatosLegajosFiltrados = (from emp in Contexto.Legajos
-                                             where  emp.EmpresaLegajo == idEmpresa
+                                             where emp.EmpresaLegajo == idEmpresa
                                              select emp).OrderBy(w => w.Apellido).Take(take).ToList();
                 }
 
@@ -459,6 +459,7 @@ public partial class ABMLegajos2 : System.Web.UI.Page
                          DesComplementarioRacs = !d.ComplementarioRacs.HasValue ? "No Apto" : !d.ComplementarioRacs.Value ? "No Apto" : "Apto",
                          DesAdicionalQuimicos = !d.AdicionalQuimicos.HasValue ? "No Apto" : !d.AdicionalQuimicos.Value ? "No Apto" : "Apto",
                          CredencialHabilitada = CalcularHabilitaacionCredencial(d, Todos),
+                         PoseeFoto = d.RutaFoto == null || d.RutaFoto.Trim() == "" ? "NO" : "SI",
                          dc = Todos.Where(w => w != null && w.IdLegajos == d.IdLegajos).Select(w => new
                          {
                              w.ContratoEmpresas.Contrato.Codigo,
@@ -468,6 +469,7 @@ public partial class ABMLegajos2 : System.Web.UI.Page
                              CategoriaContrato = "Contrato: " + w.ContratoEmpresas.Contrato.objCategoria.Descripcion,
                              Contratista = w.ContratoEmpresas.EsContratista.Value ? w.ContratoEmpresas.Empresa.RazonSocial : w.ContratoEmpresas.Contrato.ContratoEmpresas.Where(c => c.EsContratista.Value).FirstOrDefault().Empresa.RazonSocial,
                              SubContratista = !w.ContratoEmpresas.EsContratista.Value ? w.ContratoEmpresas.Empresa.RazonSocial : "",
+                             DatosSeguro = ObtenerDatosSeguroEmpresa(w.ContratoEmpresas.Empresa, d)
                          }).FirstOrDefault()
                      }).ToList();
 
@@ -475,6 +477,95 @@ public partial class ABMLegajos2 : System.Web.UI.Page
 
     }
 
+    public string ObtenerDatosSeguroEmpresa(Empresa emp, Legajos leg)
+    {
+        string NombreCopañia = "";
+        string NroPoliza = "";
+        string FechaInicial = "";
+        string FechaVencimiento = "";
+        string FechaUltimoPago = "";
+        string Descripcion = "";
+        //string Tipo="";
+
+
+        if (leg.objCompañiaSeguro == null)
+        {
+
+            if (emp != null && emp.Seguros.Count > 0)
+            {
+
+
+                NombreCopañia = emp.Seguros.FirstOrDefault().objCompañia.Descripcion;
+                NroPoliza = emp.Seguros.FirstOrDefault().NroPoliza;
+                FechaInicial = emp.Seguros.FirstOrDefault().FechaInicial.Value.ToShortDateString();
+                FechaVencimiento = emp.Seguros.FirstOrDefault().FechaVencimiento.Value.ToShortDateString();
+                FechaUltimoPago = emp.Seguros.FirstOrDefault().FechaUltimoPago.Value.ToShortDateString();
+                Descripcion= emp.Seguros.FirstOrDefault().Descripcion;
+
+            }
+            else
+            {
+                return "No posee datos de seguro";
+            }
+        }
+        else
+        {
+
+            NombreCopañia = leg.objCompañiaSeguro.Descripcion;
+            NroPoliza = leg.NroPoliza;
+            FechaInicial = leg.FechaInicial != null ? leg.FechaInicial.Value.ToShortDateString() : "";
+            FechaVencimiento = leg.FechaVencimiento != null ? leg.FechaVencimiento.Value.ToShortDateString(): "";
+            FechaUltimoPago = leg.FechaUltimoPago != null ? leg.FechaUltimoPago.Value.ToShortDateString(): "";
+            Descripcion = leg.Descripcion;
+
+        }
+
+        string tablaDatosSeguro = "<table cellpadding='0' cellspacing='5' width='100%' border='0' style='text-align: left' id=''>";
+        tablaDatosSeguro += "<tbody id='SEG'>";
+        tablaDatosSeguro += "<tr>";
+        tablaDatosSeguro += "<td style='width:120px;'>";
+        tablaDatosSeguro += "<span class='lblConosudSimple'>Compañia:</span>";
+        tablaDatosSeguro += "</td>";
+        tablaDatosSeguro += "<td align='left' style='padding-left: 5px; padding-right: 5px'>" + NombreCopañia;
+        tablaDatosSeguro += "</td>";
+        tablaDatosSeguro += "<td style='width: 120px'>";
+        tablaDatosSeguro += "<span class='lblConosudSimple'>Nro Poliza:</span>";
+        tablaDatosSeguro += "</td>";
+        tablaDatosSeguro += "<td style='padding-left: 5px; padding-right: 5px'>" + NroPoliza;
+        tablaDatosSeguro += "</td>";
+        tablaDatosSeguro += "</tr>";
+        tablaDatosSeguro += "<tr>";
+        tablaDatosSeguro += "<td>";
+        tablaDatosSeguro += "<span class='lblConosudSimple'>Fecha Inicial:</span>";
+        tablaDatosSeguro += "</td>";
+        tablaDatosSeguro += "<td style='padding-left: 5px; padding-right: 5px'>" + FechaInicial;
+        tablaDatosSeguro += "</td>";
+        tablaDatosSeguro += "<td>";
+        tablaDatosSeguro += "<span class='lblConosudSimple'>Fecha Venc.:</span>";
+        tablaDatosSeguro += "</td>";
+        tablaDatosSeguro += "<td style='padding-left: 5px; padding-right: 5px'>" + FechaVencimiento;
+        tablaDatosSeguro += "</td>";
+        tablaDatosSeguro += "</tr>";
+        tablaDatosSeguro += "<tr>";
+        tablaDatosSeguro += "<td>";
+        tablaDatosSeguro += "<span class='lblConosudSimple'>Fecha Ult. Pago:</span>";
+        tablaDatosSeguro += "</td>";
+        tablaDatosSeguro += "<td style='padding-left: 5px; padding-right: 5px'>" + FechaUltimoPago;
+
+        tablaDatosSeguro += "</td>";
+        tablaDatosSeguro += "<td>";
+        tablaDatosSeguro += "<span class='lblConosudSimple'>Descipción:</span>";
+        tablaDatosSeguro += "</td>";
+        tablaDatosSeguro += "<td style='padding-left: 5px; padding-right: 5px'>";
+        tablaDatosSeguro += "";
+        tablaDatosSeguro += "</td>";
+        tablaDatosSeguro += "</tr>";
+        tablaDatosSeguro += "</tbody>";
+        tablaDatosSeguro += "</table>";
+
+        return tablaDatosSeguro;
+
+    }
     public string CalcularHabilitaacionCredencial(Legajos leg, List<ContEmpLegajos> contEmpLeg)
     {
         List<DateTime?> allFechasCalculo = new List<DateTime?>();
@@ -491,7 +582,7 @@ public partial class ABMLegajos2 : System.Web.UI.Page
             {
 
                 Seguros segART = leg.objContEmpLegajos.Last().ContratoEmpresas.Empresa.Seguros.Where(w => w.objTipoSeguro != null && w.objTipoSeguro.Descripcion.Contains("ART")).FirstOrDefault();
-                if (segART!= null)
+                if (segART != null)
                     fechaSeguro = segART.FechaVencimiento;
 
             }
@@ -513,7 +604,7 @@ public partial class ABMLegajos2 : System.Web.UI.Page
 
 
 
-        
+
     }
 
     private void BindResults()
@@ -806,7 +897,7 @@ public partial class ABMLegajos2 : System.Web.UI.Page
                                  d.d.NroDoc,//" HeaderText="NroDoc" 
                                  d.d.CUIL,//" HeaderText="CUIL" 
                                  //fechaVencimientoCalculada = (d.dc != null && d.dc.FechaVencimiento != null) ? d.dc.FechaVencimiento : fechaVencimientoBaja,
-                                 CredVencimiento = d.d.CredVencimiento == null ? "NO" : (DateTime.Now < d.d.CredVencimiento && d.d.CredVencimiento <= (d.dc != null && d.dc.FechaVencimiento != null ? DateTime.Parse(d.dc.FechaVencimiento) : fechaVencimientoBaja)) ? "SÍ" : "NO",
+                                 CredVencimiento = d.CredencialHabilitada, //d.d.CredVencimiento == null ? "NO" : (DateTime.Now < d.d.CredVencimiento && d.d.CredVencimiento <= (d.dc != null && d.dc.FechaVencimiento != null ? DateTime.Parse(d.dc.FechaVencimiento) : fechaVencimientoBaja)) ? "SÍ" : "NO",
                                  Contratista = d.dc == null ? "" : d.dc.Contratista,//"  HeaderText="Contratista" 
                                  SubContratista = d.dc == null ? "" : d.dc.SubContratista,//" HeaderText="Sub Contratista" 
                                  Codigo = d.dc == null ? "" : d.dc.Codigo,//"  HeaderText="Contrato"
@@ -822,6 +913,7 @@ public partial class ABMLegajos2 : System.Web.UI.Page
                                  d.d.FechaUltimaVerificacion,//"   HeaderText="Fecha Verificación"
                                  d.d.FechaUltmaModificacion,//  HeaderText="Fecha Ultima Modificación" 
                                  d.d.ObservacionBloqueo,//" HeaderText="Obs. Bloqueo" 
+                                 d.PoseeFoto,
                                  d.d.Direccion,//" HeaderText="Dirección"
                                  d.d.CodigoPostal,//" HeaderText="Codigo Postal" 
                                  d.d.TelefonoFijo,//" HeaderText="Telefono Fijo"
@@ -883,7 +975,8 @@ public partial class ABMLegajos2 : System.Web.UI.Page
         { "Codigo", "Contrato" } ,
         { "FechaVencimientoContrato", "Vencimiento Contrato"  } ,
         { "Periodo", "Periodo"  } ,
-        { "CategoriaContrato", "Categoria"  }         };
+        { "CategoriaContrato", "Categoria"  }   ,
+        { "PoseeFoto", "Posee Foto"  }   };
 
         List<string> DatosReporte = new List<string>();
         DatosReporte.Add("Base de Datos de Legajos");
@@ -1671,7 +1764,7 @@ public partial class ABMLegajos2 : System.Web.UI.Page
 
         /// Busco si el usuario tiene restricciones para los contratos.
         var datos = (from c in Contexto.SegContextos
-                     where c.SegUsuario == idUsuario 
+                     where c.SegUsuario == idUsuario
                      && c.Contexto == "CONTRATO"
                      select c.Valor).ToList();
 

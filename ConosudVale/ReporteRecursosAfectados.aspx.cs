@@ -124,13 +124,14 @@ public partial class ReporteRecursosAfectados : System.Web.UI.Page
             { "DescCompañiaSeguro","Compañia Seguro"},
             { "FechaInicial" ,"Inicio Seguro"},
             { "FechaVencimiento" ,"Vencimiento Seguro"},
-            { "FechaUltimoPago" ,"Ultimo Pago Seguro"}};
+            { "FechaUltimoPago" ,"Ultimo Pago Seguro"},
+            { "PoseeFoto" ,"Posee Foto"}};
 
 
         camposExcluir.Add("IdLegajos");
         camposExcluir.Add("PeriodoConsulta");
         camposExcluir.Add("DescEstadoVerificacion");
-        
+
 
 
 
@@ -156,6 +157,54 @@ public partial class ReporteRecursosAfectados : System.Web.UI.Page
 
 
         //GridRecursosAfectados.ExportToExcelFunction("Recursos", (GetData(cboPeriodos.Text, 0, 5000) as IList));
+
+    }
+
+
+    public static string CalcularHabilitaacionCredencial(Legajos leg, List<ContEmpLegajos> contEmpLeg, bool returnFecha)
+    {
+        List<DateTime?> allFechasCalculo = new List<DateTime?>();
+
+        DateTime? fechaVencimientoContrato = null;
+        DateTime? fechaAltaMedica = leg.FechaUltimoExamen != null ? leg.FechaUltimoExamen.Value.AddYears(1) : (DateTime?)null;
+        DateTime? fechaRac = leg.CursosLegajos.Min(w => w.FechaVencimiento);
+        var contratoActivo = contEmpLeg.Where(w => w != null && w.IdLegajos == leg.IdLegajos).LastOrDefault();
+        if (contratoActivo != null)
+        {
+
+            DateTime? fechaSeguro = leg.CompañiaSeguro != null && leg.FechaVencimiento != null ? leg.FechaVencimiento.Value : (DateTime?)null;
+            if (fechaSeguro == null)
+            {
+
+                Seguros segART = leg.objContEmpLegajos.Last().ContratoEmpresas.Empresa.Seguros.Where(w => w.objTipoSeguro != null && w.objTipoSeguro.Descripcion.Contains("ART")).FirstOrDefault();
+                if (segART != null)
+                    fechaSeguro = segART.FechaVencimiento;
+
+            }
+
+            fechaVencimientoContrato = contratoActivo.ContratoEmpresas.Contrato.Prorroga.HasValue && contratoActivo.ContratoEmpresas.Contrato.Prorroga.Value > contratoActivo.ContratoEmpresas.Contrato.FechaVencimiento ? contratoActivo.ContratoEmpresas.Contrato.Prorroga : contratoActivo.ContratoEmpresas.Contrato.FechaVencimiento;
+
+            allFechasCalculo.Add(fechaAltaMedica);
+            allFechasCalculo.Add(fechaRac);
+            allFechasCalculo.Add(fechaSeguro);
+            allFechasCalculo.Add(fechaVencimientoContrato);
+            allFechasCalculo.Add(leg.CredVencimiento);
+
+            DateTime minFecha = allFechasCalculo.Where(w => w != null).Min(w => w.Value);
+
+            if (returnFecha)
+                return minFecha.ToShortDateString();
+            else
+                return DateTime.Now < minFecha ? "SI" : "NO";
+        }
+        else
+        {
+            if (returnFecha)
+                return "Sin Contrato";
+            else
+                return "NO";
+            
+        }
 
     }
 
@@ -194,7 +243,7 @@ public partial class ReporteRecursosAfectados : System.Web.UI.Page
             /// Consulta para determinar el contrato y periodod de baja del legajo si es que posee
             var empActuales = (from emp in Contexto.ContEmpLegajos
                                where emp.CabeceraHojasDeRuta.Periodo >= FechaInicial && emp.CabeceraHojasDeRuta.Periodo < FechaFinal
-                               && emp.Legajos.objEmpresaLegajo != null 
+                               && emp.Legajos.objEmpresaLegajo != null
                                orderby emp.Legajos.Apellido
                                select new
                                {
@@ -256,6 +305,7 @@ public partial class ReporteRecursosAfectados : System.Web.UI.Page
                                    emp.Legajos.FechaInicial,
                                    emp.Legajos.FechaVencimiento,
                                    emp.Legajos.FechaUltimoPago,
+                                   emp.Legajos.RutaFoto,
 
                                    /// Datos Propios de la Empresa Asignada
                                    CUITEmpresa = emp.Legajos.objEmpresaLegajo.CUIT,
@@ -265,17 +315,20 @@ public partial class ReporteRecursosAfectados : System.Web.UI.Page
                                    //PeriodoAfectacion = emp.Legajos.objContEmpLegajos.OrderBy(p => p.CabeceraHojasDeRuta.Periodo).Select(p => p.CabeceraHojasDeRuta.Periodo).FirstOrDefault(),
 
                                    PeriodoAfectacion = emp.ContratoEmpresas.CabeceraHojasDeRuta.OrderBy(p => p.Periodo).Select(p => p.Periodo).FirstOrDefault(),
-
+                                   legajo = emp.Legajos,
+                                   contEmp = emp,
 
                                }).Skip(start).Take(take).ToList();
 
+
+            List<ContEmpLegajos> contEmp = empActuales.Select(w => w.contEmp).ToList();
 
             var DatosFormateados = (from l in empActuales
                                     select new
                                     {
                                         /// Datos Propios de la Empresa Contratista
                                         EmpContratista = l.EsContratista.HasValue && l.EsContratista == true ? l.RazonSocial : EmpresaContratistas.Where(w => w.IdContrato == l.IdContrato && w.EsContratista).FirstOrDefault().RazonSocial,
-                                        EmpSubContratista =  !l.EsContratista.HasValue || l.EsContratista == false  ? l.RazonSocial:"",
+                                        EmpSubContratista = !l.EsContratista.HasValue || l.EsContratista == false ? l.RazonSocial : "",
                                         l.RazonSocial,
                                         l.CUITEmpresa,
                                         l.Codigo,
@@ -293,8 +346,8 @@ public partial class ReporteRecursosAfectados : System.Web.UI.Page
                                         l.DescTipoDocumento,
                                         l.NroDoc,
 
-                                        l.CredVencimiento,
-                                        HabilitarCredencial = l.CredVencimiento.HasValue && DateTime.Now < l.CredVencimiento.Value && l.CredVencimiento <= l.FechaVencimientoContratoEfectiva ? "SÍ" : "NO",
+                                        CredVencimiento = CalcularHabilitaacionCredencial(l.legajo, contEmp,true),
+                                        HabilitarCredencial = CalcularHabilitaacionCredencial(l.legajo, contEmp,false),// l.CredVencimiento.HasValue && DateTime.Now < l.CredVencimiento.Value && l.CredVencimiento <= l.FechaVencimientoContratoEfectiva ? "SÍ" : "NO",
                                         l.DescEstadoVerificacion,
                                         l.FechaUltimaVerificacion,
                                         l.Observacion,
@@ -318,13 +371,14 @@ public partial class ReporteRecursosAfectados : System.Web.UI.Page
                                         l.DescConvenio,
                                         l.FechaUltimoExamen,
                                         l.DescNacionalida,
+                                        PoseeFoto = l.RutaFoto == null || l.RutaFoto.Trim() == "" ? "NO" : "SI",
                                         l.CodigoPostal,
                                         l.TelefonoFijo,
                                         l.CorreoElectronico,
                                         l.FechaIngreos,
                                         l.GrupoSangre,
                                         AutorizadoCond = l.AutorizadoCond == true ? "Si" : "No",
-                                        
+
                                         l.Funcion,
                                         l.NroPoliza,
                                         l.DescDescSeguro,
@@ -333,7 +387,7 @@ public partial class ReporteRecursosAfectados : System.Web.UI.Page
                                         l.FechaVencimiento,
                                         l.FechaUltimoPago,
                                         PeriodoAfectacion = string.Format("{0:MM/yyyy}", l.PeriodoAfectacion)
-                                        
+
 
 
 

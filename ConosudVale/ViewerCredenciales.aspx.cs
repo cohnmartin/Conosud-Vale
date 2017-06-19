@@ -104,8 +104,8 @@ public partial class ViewerCredenciales : System.Web.UI.Page
             }
 
             
-            if (this.Session["TipoUsuario"].ToString() == "Cliente")
-                ReportViewer1.ShowExportGroup = false;
+            //if (this.Session["TipoUsuario"].ToString() == "Cliente")
+            //    ReportViewer1.ShowExportGroup = false;
         }
     }
 }

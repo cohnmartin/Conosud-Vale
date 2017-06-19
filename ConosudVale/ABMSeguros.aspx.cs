@@ -368,7 +368,13 @@ public partial class ABMSeguros : System.Web.UI.Page
 
 
                 if (FechaVencimiento != "")
+                {
+                    if (newSeguro.FechaVencimiento != Convert.ToDateTime(FechaVencimiento))
+                        ModificarCredenciales(newSeguro, newSeguro.FechaVencimiento, dc);
+
                     newSeguro.FechaVencimiento = Convert.ToDateTime(FechaVencimiento);
+                    
+                }
                 else
                     newSeguro.FechaVencimiento = null;
 
@@ -378,10 +384,29 @@ public partial class ABMSeguros : System.Web.UI.Page
                 else
                     newSeguro.FechaUltimoPago = null;
 
+
+
             }
 
             dc.SaveChanges();
         }
     }
 
+    private static void ModificarCredenciales(Seguros seguro ,DateTime? fechaVencimiento, EntidadesConosud dc)
+    { 
+            var legajosAfectados = (from l in dc.Legajos
+                                   where l.EmpresaLegajo == seguro.EmpresaContratista
+                                   select l).ToList();
+
+            foreach (var leg in legajosAfectados)
+            {
+                if (leg.objContEmpLegajos.Count() > 0 && leg.objContEmpLegajos.Last().FechaTramiteBaja == null)
+                {
+                    if (leg.objContEmpLegajos.Last().ContratoEmpresas.Contrato.objCategoria.IdClasificacion == 91)
+                        leg.CredVencimiento = fechaVencimiento;
+                }
+            }
+
+
+    }
 }

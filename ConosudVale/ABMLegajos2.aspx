@@ -11,7 +11,6 @@
         {
             z-index: 999900000 !important;
         }
-        
         tbody.on
         {
             display: table-row-group;
@@ -19,6 +18,14 @@
         tbody.off
         {
             display: none;
+        }
+        .lblConosudSimple
+        {
+            font-family: Tahoma;
+            font-weight: bold;
+            font-size: 12px;
+            color: black;
+            padding-top: 5x;
         }
     </style>
     <script type="text/javascript">
@@ -109,11 +116,10 @@
                                 return false;
                             }
                         }
-                        
+
                         var fecha = datePickerCredencial.get_selectedDate();
                         var obsAuditoria = $get("<%= txtObservacion.ClientID%>").value;
-                        if (fecha != null && obsAuditoria.trim() != "" && cboContratoAsigando.get_value() != "" && cboContratoAsigando.get_value() != "-1") 
-                        {
+                        if (fecha != null && obsAuditoria.trim() != "" && cboContratoAsigando.get_value() != "" && cboContratoAsigando.get_value() != "-1") {
                             radalert("El legajo esta asignado a un contrato y posee un vencimiento en la credencial, por lo que el mismo no puede tener una observación de Auditoría.", 300, 100, 'Legajos');
                             return false;
                         }
@@ -221,6 +227,8 @@
                 var cellPeriodo = MasterTable.getCellByColumnUniqueName(Item[0], "PeriodoColumn");
                 var cellVencimientoContrato = MasterTable.getCellByColumnUniqueName(Item[0], "FechaVencimientoContratoColumn");
                 var cellCategoriaContrato = MasterTable.getCellByColumnUniqueName(Item[0], "CategoriaContratoColumn");
+
+                var cellDatosSeguro = MasterTable.getCellByColumnUniqueName(Item[0], "DatosSeguroColumn");
 
 
 
@@ -382,7 +390,7 @@
                     año = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(6, 4)));
                     FechaContrato = new Date(año, mes, dia);
 
-                    if (FechaContrato != "NaN" && $find("<%= txtFechaVenCredencial.ClientID%>")!= null)
+                    if (FechaContrato != "NaN" && $find("<%= txtFechaVenCredencial.ClientID%>") != null)
                         $find("<%= txtFechaVenCredencial.ClientID%>").set_maxDate(FechaContrato);
                 }
 
@@ -402,7 +410,7 @@
                     Fecha = new Date(año, mes, dia);
                     $find("<%= txtFechaVenCarnet.ClientID%>").set_selectedDate(Fecha);
                 }
-                
+
 
                 if (cellFechaNacimiento.outerText.trim() != "") {
                     dia = parseInt(lTrim0(cellFechaNacimiento.outerText.substr(0, 2)));
@@ -588,8 +596,21 @@
                 $find("<%=ServerControlWindow1.ClientID %>").ShowWindows('divPrincipal', "Edición: " + cellApellido.innerText + ", " + cellNombre.innerText);
 
                 if ("<%=EsContratista %>" == "True") {
+
                     $find("<%=pnlEdicion.ClientID %>").DisabledElement(true);
+                    $("#tblDatosSeguro").hide();
+                    $("#divDatosSeguros").html(cellDatosSeguro.innerHTML);
+                    $("#divDatosSeguros").show();
                 }
+                else {
+
+
+                    $("#tblDatosSeguro").show();
+                    $("#divDatosSeguros").hide();
+
+                }
+
+
             }
             else {
                 radalert("Debe seleccionar un legajo para ver poder editar sus datos", 250, 100, "Selección Legajo");
@@ -836,9 +857,9 @@
             else
                 $find("<%= txtFechaVenCarnet.ClientID%>").set_selectedDate(null);
 
-//            return false;
+            //            return false;
             // chkAutorizadoConducir
-        
+
         }
     </script>
     <asp:UpdateProgress ID="UpdateProgress2" runat="server" DisplayAfter="50">
@@ -1122,12 +1143,9 @@
                                     <telerik:GridBoundColumn DataField="d.FechaUltimoExamen" UniqueName="FechaUltimoExamenColumn"
                                         HeaderText="Fecha Ult. Exámen" Display="false">
                                     </telerik:GridBoundColumn>
-
                                     <telerik:GridBoundColumn DataField="d.FechaVencimientoCarnet" UniqueName="FechaVenCarnetColumn"
                                         HeaderText="Fecha Ven Credencial" Display="false">
                                     </telerik:GridBoundColumn>
-                                    
-
                                     <telerik:GridBoundColumn DataField="d.RutaFoto" UniqueName="RutaFotoColumn" Display="false">
                                     </telerik:GridBoundColumn>
                                     <telerik:GridBoundColumn DataField="d.EmpresaLegajo" UniqueName="EmpresaLegajoColumn"
@@ -1173,6 +1191,9 @@
                                     </telerik:GridBoundColumn>
                                     <telerik:GridBoundColumn DataField="dc.Periodo" UniqueName="PeriodoColumn" Display="true"
                                         HeaderText="Periodo">
+                                    </telerik:GridBoundColumn>
+                                    <telerik:GridBoundColumn DataField="dc.DatosSeguro" UniqueName="DatosSeguroColumn"
+                                        Display="false" HeaderText="DatosSeguro">
                                     </telerik:GridBoundColumn>
                                     <telerik:GridBoundColumn DataField="dc.CategoriaContrato" UniqueName="CategoriaContratoColumn"
                                         HeaderStyle-Width="140px" HeaderStyle-HorizontalAlign="Center" Display="true"
@@ -1475,12 +1496,12 @@
                                                     <td width="10%">
                                                         <asp:Label ID="Label37" runat="server" SkinID="lblConosud" Text="Autorizado a Conducir:"></asp:Label>
                                                     </td>
-                                                    <td align="left" style="display:inline-flex">
-                                                        <asp:CheckBox ID="chkAutorizadoConducir" SkinID="chkConosud" runat="server" Text="" >
+                                                    <td align="left" style="display: inline-flex">
+                                                        <asp:CheckBox ID="chkAutorizadoConducir" SkinID="chkConosud" runat="server" Text="">
                                                         </asp:CheckBox>
-                                                        <asp:Label ID="Label28" runat="server" SkinID="lblConosud" Text="Vencimiento Carnet:" style="padding:5px"></asp:Label>
-                                                        <telerik:RadDatePicker ID="txtFechaVenCarnet" MinDate="1950/1/1" runat="server"
-                                                            ZIndex="922000000">
+                                                        <asp:Label ID="Label28" runat="server" SkinID="lblConosud" Text="Vencimiento Carnet:"
+                                                            Style="padding: 5px"></asp:Label>
+                                                        <telerik:RadDatePicker ID="txtFechaVenCarnet" MinDate="1950/1/1" runat="server" ZIndex="922000000">
                                                         </telerik:RadDatePicker>
                                                     </td>
                                                 </tr>
@@ -1564,10 +1585,10 @@
                                         <table cellpadding="0" cellspacing="0" width="100%" border="0" style="text-align: left">
                                             <tbody id="DA">
                                                 <tr>
-                                                    <td style="display:none" >
+                                                    <td style="display: none">
                                                         <asp:Label ID="lblEstVer" runat="server" SkinID="lblConosud" Text="Estado Verificación.:"></asp:Label>
                                                     </td>
-                                                    <td align="left" style="padding-left: 5px; padding-right: 5px;display:none">
+                                                    <td align="left" style="padding-left: 5px; padding-right: 5px; display: none">
                                                         <telerik:RadComboBox ID="cboEstadoVerificacion" runat="server" Skin="Sunset" Width="220px"
                                                             ZIndex="922000000" EmptyMessage="Seleccione tipo Verificacion" DataValueField="IdClasificacion"
                                                             DataTextField="Descripcion" AllowCustomText="true">
@@ -1620,7 +1641,8 @@
                             </tr>
                             <tr>
                                 <td colspan="5">
-                                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="text-align: left">
+                                    <table cellpadding="0" cellspacing="0" width="100%" border="0" style="text-align: left"
+                                        id="tblDatosSeguro">
                                         <tbody id="SEG">
                                             <tr>
                                                 <td style="width: 120px">
@@ -1673,6 +1695,8 @@
                                             </tr>
                                         </tbody>
                                     </table>
+                                    <div id="divDatosSeguros">
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
