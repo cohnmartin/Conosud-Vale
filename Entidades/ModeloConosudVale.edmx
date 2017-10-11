@@ -518,6 +518,7 @@
           <Property Name="ComplementarioRacs" Type="bit" />
           <Property Name="AdicionalQuimicos" Type="bit" />
           <Property Name="FechaVencimientoCarnet" Type="datetime" />
+          <Property Name="FechaVencimientoCDM" Type="datetime" />
         </EntityType>
         <EntityType Name="LegajosImp">
           <Key>
@@ -1829,6 +1830,7 @@
           <Property Type="Boolean" Name="ComplementarioRacs" />
           <Property Type="Boolean" Name="AdicionalQuimicos" />
           <Property Type="DateTime" Name="FechaVencimientoCarnet" />
+          <Property Type="DateTime" Name="FechaVencimientoCDM" />
         </EntityType>
         <EntityType Name="Plantilla">
           <Key>
@@ -2847,6 +2849,7 @@
             <ScalarProperty Name="AuditadoPor" ColumnName="AuditadoPor" />
           </MappingFragment></EntityTypeMapping></EntitySetMapping>
           <EntitySetMapping Name="Legajos"><EntityTypeMapping TypeName="EntidadesTG.Legajos"><MappingFragment StoreEntitySet="Legajos">
+                <ScalarProperty Name="FechaVencimientoCDM" ColumnName="FechaVencimientoCDM" />
                 <ScalarProperty Name="FechaVencimientoCarnet" ColumnName="FechaVencimientoCarnet" />
                 <ScalarProperty Name="AdicionalQuimicos" ColumnName="AdicionalQuimicos" />
                 <ScalarProperty Name="ComplementarioRacs" ColumnName="ComplementarioRacs" />

@@ -7757,6 +7757,30 @@ namespace Entidades
         private Nullable<global::System.DateTime> _FechaVencimientoCarnet;
         partial void OnFechaVencimientoCarnetChanging(Nullable<global::System.DateTime> value);
         partial void OnFechaVencimientoCarnetChanged();
+    
+        /// <summary>
+        /// No hay documentación de metadatos disponible.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public Nullable<global::System.DateTime> FechaVencimientoCDM
+        {
+            get
+            {
+                return _FechaVencimientoCDM;
+            }
+            set
+            {
+                OnFechaVencimientoCDMChanging(value);
+                ReportPropertyChanging("FechaVencimientoCDM");
+                _FechaVencimientoCDM = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("FechaVencimientoCDM");
+                OnFechaVencimientoCDMChanged();
+            }
+        }
+        private Nullable<global::System.DateTime> _FechaVencimientoCDM;
+        partial void OnFechaVencimientoCDMChanging(Nullable<global::System.DateTime> value);
+        partial void OnFechaVencimientoCDMChanged();
 
         #endregion
 
