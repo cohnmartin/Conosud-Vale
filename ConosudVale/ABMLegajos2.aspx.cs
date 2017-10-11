@@ -189,6 +189,11 @@ public partial class ABMLegajos2 : System.Web.UI.Page
 
             //Do not display SelectedFilesCount progress indicator.
             RadProgressArea1.ProgressIndicators &= ~ProgressIndicators.SelectedFilesCount;
+
+
+
+
+
         }
         RadProgressArea1.DisplayCancelButton = true;
         RadProgressArea1.Localization.Uploaded = "Total Progreso";
@@ -200,6 +205,10 @@ public partial class ABMLegajos2 : System.Web.UI.Page
 
         string[] allowedFileExtensions = new string[4] { ".jpg", ".jpeg", ".png", ".gif" };
         RadUpload1.AllowedFileExtensions = allowedFileExtensions;
+
+
+        if (Request.QueryString["Reporte"] == "S")
+            btnExportarEmpresaRemis();
 
     }
 
@@ -477,6 +486,130 @@ public partial class ABMLegajos2 : System.Web.UI.Page
 
     }
 
+
+    public List<dynamic> FiltrarLegajosRemis()
+    {
+        long idUsuario = long.Parse(Session["idusu"].ToString());
+        List<ContEmpLegajos> Todos = new List<ContEmpLegajos>();
+        List<Legajos> DatosLegajosFiltrados;
+
+
+
+        DatosLegajosFiltrados = (from emp in Contexto.Legajos
+                                 where emp.objEmpresaLegajo.RazonSocial.Contains("BRISAS")
+                                 select emp).OrderBy(w => w.Apellido).ToList();
+
+
+
+
+        List<long> idsLegajos = DatosLegajosFiltrados.Select(w => w.IdLegajos).Distinct().ToList();
+
+        var contEmpLegajos = (from e in Contexto.ContEmpLegajos
+                              where idsLegajos.Contains(e.IdLegajos.Value)
+                              group e by new { e.IdLegajos, e.ContratoEmpresas.IdEmpresa } into g
+                              select new
+                              {
+                                  g.Key,
+                                  contratos = g,
+                                  cab = g.Select(w => w.CabeceraHojasDeRuta)
+                              }).ToList();
+
+
+
+
+        /// Esta lógica es para determinar el contrato actual de cada legajo y si no esta asignado
+        /// a ningun contrato se bueca el ultimo en el que estuvo
+        foreach (Legajos leg in DatosLegajosFiltrados)
+        {
+            /// ORIGINAL
+            //List<ContEmpLegajos> TotalContratosLegajo = contEmpLegajos.Where(w => w.IdLegajos == leg.IdLegajos && w.ContratoEmpresas.IdEmpresa == leg.objEmpresaLegajo.IdEmpresa).ToList();
+            //List<ContEmpLegajos> TotalContratosLegajo = contEmpLegajos.Where(w => w.e.IdLegajos == leg.IdLegajos && w.IdEmpresa == leg.EmpresaLegajo.Value).Select(w => w.e).ToList();
+
+            List<ContEmpLegajos> TotalContratosLegajo = null;
+            var ContratosExistentes = contEmpLegajos.Where(w => leg.EmpresaLegajo.HasValue && w.Key.IdLegajos == leg.IdLegajos && w.Key.IdEmpresa == leg.EmpresaLegajo.Value).Select(w => w.contratos).ToList().FirstOrDefault();
+            if (ContratosExistentes != null)
+            {
+                TotalContratosLegajo = ContratosExistentes.ToList();
+
+
+                ContEmpLegajos contFinal = null;
+                ContEmpLegajos Ultimo = TotalContratosLegajo.Where(w => w.FechaTramiteBaja.HasValue).OrderBy(w => w.FechaTramiteBaja).LastOrDefault();
+
+                // Si ultimo es null indica que el legajo esta asociado a un contrato actualmente.
+                if (Ultimo == null)
+                {
+                    var ultimoContrato = TotalContratosLegajo.OrderBy(w => w.CabeceraHojasDeRuta.Periodo).LastOrDefault();
+                    contFinal = TotalContratosLegajo.Where(w => w.IdContratoEmpresas == ultimoContrato.IdContratoEmpresas).OrderBy(w => w.CabeceraHojasDeRuta.Periodo).FirstOrDefault();
+                }
+                else if (Ultimo != null && TotalContratosLegajo.Any(w => !w.FechaTramiteBaja.HasValue && w.CabeceraHojasDeRuta.Periodo >= Ultimo.CabeceraHojasDeRuta.Periodo && Ultimo.IdContEmpLegajos != w.IdContEmpLegajos))
+                {
+                    /// busco el primer periodo luego de la ultima baja que tuvo en el contrato, es decir que el legajo
+                    /// trabajo un periodo, se lo dio de baja y luego se lo volvio a asignar.
+                    contFinal = TotalContratosLegajo.Where(w => !w.FechaTramiteBaja.HasValue && DateTime.Parse("01/" + w.CabeceraHojasDeRuta.Periodo.Month.ToString() + "/" + w.CabeceraHojasDeRuta.Periodo.Year.ToString()) >= DateTime.Parse("01/" + Ultimo.CabeceraHojasDeRuta.Periodo.Month.ToString() + "/" + Ultimo.CabeceraHojasDeRuta.Periodo.Year.ToString()) && Ultimo.IdContEmpLegajos != w.IdContEmpLegajos).FirstOrDefault();
+
+                }
+                else
+                {
+
+                    bool encontrado = false;
+                    foreach (ContEmpLegajos item in TotalContratosLegajo.OrderBy(w => w.CabeceraHojasDeRuta.Periodo))
+                    {
+                        if (encontrado)
+                        {
+                            if (item.CabeceraHojasDeRuta.Periodo.Date >= DateTime.Now.Date)
+                                contFinal = item;
+
+                            break;
+                        }
+                        else if (item.IdContEmpLegajos == Ultimo.IdContEmpLegajos)
+                            encontrado = true;
+                    }
+
+                }
+
+                Todos.Add(contFinal);
+            }
+
+        }
+
+
+        //<!--asp:Label ID="Label28" runat="server" Style="font-weight: bold" Text='<%# DateTime.Now < Convert.ToDateTime(Eval("d.CredVencimiento")) && Convert.ToDateTime(Eval("d.CredVencimiento")) <= Convert.ToDateTime(Eval("dc.FechaVencimiento")) ? "SÍ": "NO" %>'></asp:Label-->
+
+        var datos = (from d in DatosLegajosFiltrados
+                     select new
+                     {
+                         d = d,
+                         DesEstudiosBasicos = !d.EstudiosBasicos.HasValue ? "No Apto" : !d.EstudiosBasicos.Value ? "No Apto" : "Apto",
+                         DesComplementarioRacs = !d.ComplementarioRacs.HasValue ? "No Apto" : !d.ComplementarioRacs.Value ? "No Apto" : "Apto",
+                         DesAdicionalQuimicos = !d.AdicionalQuimicos.HasValue ? "No Apto" : !d.AdicionalQuimicos.Value ? "No Apto" : "Apto",
+                         CredencialHabilitada = CalcularHabilitaacionCredencial(d, Todos),
+                         PoseeFoto = d.RutaFoto == null || d.RutaFoto.Trim() == "" ? "NO" : "SI",
+                         dc = Todos.Where(w => w != null && w.IdLegajos == d.IdLegajos).Select(w => new
+                         {
+                             w.ContratoEmpresas.Contrato.Codigo,
+                             CuitEmpresa = w.ContratoEmpresas.Empresa.CUIT,
+                             w.ContratoEmpresas.Contrato.Servicio,
+                             TipoContrato = w.ContratoEmpresas.Contrato.objTipoContrato.Descripcion,
+                             FechaInicio = w.ContratoEmpresas.Contrato.FechaInicio.Value.ToShortDateString(),
+                             FechaVencimiento = w.ContratoEmpresas.Contrato.FechaVencimiento.Value.ToShortDateString(),
+                             Prorroga = w.ContratoEmpresas.Contrato.Prorroga.HasValue ? w.ContratoEmpresas.Contrato.Prorroga.Value.ToShortDateString() : "",
+                             Area = w.ContratoEmpresas.Contrato.objArea.Descripcion,
+
+                             Periodo = string.Format("{0:MM/yyyy}", w.CabeceraHojasDeRuta.Periodo),
+                             w.Legajos.IdLegajos,
+                             //FechaVencimiento = w.ContratoEmpresas.Contrato.Prorroga.HasValue && w.ContratoEmpresas.Contrato.Prorroga.Value > w.ContratoEmpresas.Contrato.FechaVencimiento ? w.ContratoEmpresas.Contrato.Prorroga.Value.ToShortDateString() : w.ContratoEmpresas.Contrato.FechaVencimiento.Value.ToShortDateString(),
+                             CategoriaContrato = "Contrato: " + w.ContratoEmpresas.Contrato.objCategoria.Descripcion,
+                             Contratista = w.ContratoEmpresas.EsContratista.Value ? w.ContratoEmpresas.Empresa.RazonSocial : w.ContratoEmpresas.Contrato.ContratoEmpresas.Where(c => c.EsContratista.Value).FirstOrDefault().Empresa.RazonSocial,
+                             SubContratista = !w.ContratoEmpresas.EsContratista.Value ? w.ContratoEmpresas.Empresa.RazonSocial : "",
+                             DatosSeguro = ObtenerDatosSeguroEmpresa(w.ContratoEmpresas.Empresa, d)
+                         }).FirstOrDefault()
+                     }).Where(w => w.dc != null).ToList();
+
+        return datos.ToList<dynamic>();
+
+    }
+
+
     public string ObtenerDatosSeguroEmpresa(Empresa emp, Legajos leg)
     {
         string NombreCopañia = "";
@@ -495,12 +628,12 @@ public partial class ABMLegajos2 : System.Web.UI.Page
             {
 
 
-                NombreCopañia = emp.Seguros.FirstOrDefault().objCompañia.Descripcion;
+                NombreCopañia = emp.Seguros.FirstOrDefault().objCompañia != null ? emp.Seguros.FirstOrDefault().objCompañia.Descripcion : "";
                 NroPoliza = emp.Seguros.FirstOrDefault().NroPoliza;
-                FechaInicial = emp.Seguros.FirstOrDefault().FechaInicial.Value.ToShortDateString();
-                FechaVencimiento = emp.Seguros.FirstOrDefault().FechaVencimiento.Value.ToShortDateString();
-                FechaUltimoPago = emp.Seguros.FirstOrDefault().FechaUltimoPago.Value.ToShortDateString();
-                Descripcion= emp.Seguros.FirstOrDefault().Descripcion;
+                FechaInicial = emp.Seguros.FirstOrDefault().FechaInicial != null ? emp.Seguros.FirstOrDefault().FechaInicial.Value.ToShortDateString() : "";
+                FechaVencimiento = emp.Seguros.FirstOrDefault().FechaVencimiento != null ? emp.Seguros.FirstOrDefault().FechaVencimiento.Value.ToShortDateString() : "";
+                FechaUltimoPago = emp.Seguros.FirstOrDefault().FechaUltimoPago != null ? emp.Seguros.FirstOrDefault().FechaUltimoPago.Value.ToShortDateString() : "";
+                Descripcion = emp.Seguros.FirstOrDefault().Descripcion;
 
             }
             else
@@ -514,8 +647,8 @@ public partial class ABMLegajos2 : System.Web.UI.Page
             NombreCopañia = leg.objCompañiaSeguro.Descripcion;
             NroPoliza = leg.NroPoliza;
             FechaInicial = leg.FechaInicial != null ? leg.FechaInicial.Value.ToShortDateString() : "";
-            FechaVencimiento = leg.FechaVencimiento != null ? leg.FechaVencimiento.Value.ToShortDateString(): "";
-            FechaUltimoPago = leg.FechaUltimoPago != null ? leg.FechaUltimoPago.Value.ToShortDateString(): "";
+            FechaVencimiento = leg.FechaVencimiento != null ? leg.FechaVencimiento.Value.ToShortDateString() : "";
+            FechaUltimoPago = leg.FechaUltimoPago != null ? leg.FechaUltimoPago.Value.ToShortDateString() : "";
             Descripcion = leg.Descripcion;
 
         }
@@ -568,41 +701,65 @@ public partial class ABMLegajos2 : System.Web.UI.Page
     }
     public string CalcularHabilitaacionCredencial(Legajos leg, List<ContEmpLegajos> contEmpLeg)
     {
-        List<DateTime?> allFechasCalculo = new List<DateTime?>();
-
         DateTime? fechaVencimientoContrato = null;
-        DateTime? fechaAltaMedica = leg.FechaUltimoExamen != null ? leg.FechaUltimoExamen.Value.AddYears(1) : (DateTime?)null;
-        DateTime? fechaRac = leg.CursosLegajos.Min(w => w.FechaVencimiento);
+        List<DateTime?> allFechasCalculo = new List<DateTime?>();
         var contratoActivo = contEmpLeg.Where(w => w != null && w.IdLegajos == leg.IdLegajos).LastOrDefault();
+
+
         if (contratoActivo != null)
         {
 
-            DateTime? fechaSeguro = leg.CompañiaSeguro != null && leg.FechaVencimiento != null ? leg.FechaVencimiento.Value : (DateTime?)null;
-            if (fechaSeguro == null)
+            if (contratoActivo.ContratoEmpresas.Empresa.RazonSocial.Contains("BRISAS"))
             {
+                DateTime? fechaCarnet = leg.FechaVencimientoCarnet != null ? leg.FechaVencimientoCarnet.Value : (DateTime?)null;
+                DateTime? fechaCDM = leg.FechaVencimientoCDM != null ? leg.FechaVencimientoCDM.Value : (DateTime?)null;
 
-                Seguros segART = leg.objContEmpLegajos.Last().ContratoEmpresas.Empresa.Seguros.Where(w => w.objTipoSeguro != null && w.objTipoSeguro.Descripcion.Contains("ART")).FirstOrDefault();
-                if (segART != null)
-                    fechaSeguro = segART.FechaVencimiento;
+
+
+
+                allFechasCalculo.Add(fechaCarnet);
+                allFechasCalculo.Add(fechaCDM);
+                allFechasCalculo.Add(fechaVencimientoContrato);
+                allFechasCalculo.Add(leg.CredVencimiento);
+
+                DateTime minFecha = allFechasCalculo.Where(w => w != null).Min(w => w.Value);
+
+                return DateTime.Now < minFecha ? "SI" : "NO";
 
             }
+            else
+            {
+                DateTime? fechaAltaMedica = leg.FechaUltimoExamen != null ? leg.FechaUltimoExamen.Value.AddYears(1) : (DateTime?)null;
+                DateTime? fechaRac = leg.CursosLegajos.Min(w => w.FechaVencimiento);
 
-            fechaVencimientoContrato = contratoActivo.ContratoEmpresas.Contrato.Prorroga.HasValue && contratoActivo.ContratoEmpresas.Contrato.Prorroga.Value > contratoActivo.ContratoEmpresas.Contrato.FechaVencimiento ? contratoActivo.ContratoEmpresas.Contrato.Prorroga : contratoActivo.ContratoEmpresas.Contrato.FechaVencimiento;
 
-            allFechasCalculo.Add(fechaAltaMedica);
-            allFechasCalculo.Add(fechaRac);
-            allFechasCalculo.Add(fechaSeguro);
-            allFechasCalculo.Add(fechaVencimientoContrato);
-            allFechasCalculo.Add(leg.CredVencimiento);
+                fechaVencimientoContrato = contratoActivo.ContratoEmpresas.Contrato.Prorroga.HasValue && contratoActivo.ContratoEmpresas.Contrato.Prorroga.Value > contratoActivo.ContratoEmpresas.Contrato.FechaVencimiento ? contratoActivo.ContratoEmpresas.Contrato.Prorroga : contratoActivo.ContratoEmpresas.Contrato.FechaVencimiento;
 
-            DateTime minFecha = allFechasCalculo.Where(w => w != null).Min(w => w.Value);
+                DateTime? fechaSeguro = leg.CompañiaSeguro != null && leg.FechaVencimiento != null ? leg.FechaVencimiento.Value : (DateTime?)null;
+                if (fechaSeguro == null)
+                {
 
-            return DateTime.Now < minFecha ? "SI" : "NO";
+                    Seguros segART = leg.objContEmpLegajos.Last().ContratoEmpresas.Empresa.Seguros.Where(w => w.objTipoSeguro != null && w.objTipoSeguro.Descripcion.Contains("ART")).FirstOrDefault();
+                    if (segART != null)
+                        fechaSeguro = segART.FechaVencimiento;
+
+                }
+
+
+                allFechasCalculo.Add(fechaAltaMedica);
+                allFechasCalculo.Add(fechaRac);
+                allFechasCalculo.Add(fechaSeguro);
+                allFechasCalculo.Add(fechaVencimientoContrato);
+                allFechasCalculo.Add(leg.CredVencimiento);
+
+                DateTime minFecha = allFechasCalculo.Where(w => w != null).Min(w => w.Value);
+
+                return DateTime.Now < minFecha ? "SI" : "NO";
+
+            }
         }
         else
             return "NO";
-
-
 
 
     }
@@ -933,13 +1090,17 @@ public partial class ABMLegajos2 : System.Web.UI.Page
                                  d.d.FechaUltimoPago,//"  HeaderText="Ultimo Pago Seg." 
                                  d.d.FechaVencimiento,//"  HeaderText="Vencimiento Seguro" 
                                  d.d.Descripcion,//" HeaderText="Descripción Seguro" 
+                                 d.d.FechaVencimientoCDM
 
 
                              }).OrderBy(w => w.Contratista).ToList();
 
 
 
-        List<string> camposExcluir = new List<string>(); ;
+        List<string> camposExcluir = new List<string>();
+
+
+
         Dictionary<string, string> alias = new Dictionary<string, string>() {
         { "TipoDocumento", "Tipo Documento" } ,
         { "FechaNacimiento", "Fecha Nacimiento" } ,
@@ -976,7 +1137,8 @@ public partial class ABMLegajos2 : System.Web.UI.Page
         { "FechaVencimientoContrato", "Vencimiento Contrato"  } ,
         { "Periodo", "Periodo"  } ,
         { "CategoriaContrato", "Categoria"  }   ,
-        { "PoseeFoto", "Posee Foto"  }   };
+        { "PoseeFoto", "Posee Foto"  }  ,
+        { "FechaVencimientoCDM", "Vencimiento CDM"  } };
 
         List<string> DatosReporte = new List<string>();
         DatosReporte.Add("Base de Datos de Legajos");
@@ -1314,6 +1476,19 @@ public partial class ABMLegajos2 : System.Web.UI.Page
                         LegUpdate.FechaVencimientoCarnet = null;
 
 
+
+                    if (txtFechaVenManejoDefensivo.SelectedDate != null)
+                    {
+                        if (LegUpdate.FechaVencimientoCDM != txtFechaVenManejoDefensivo.SelectedDate.Value)
+                        {
+                            ExisteModificacion = true;
+                        }
+                        LegUpdate.FechaVencimientoCDM = txtFechaVenManejoDefensivo.SelectedDate.Value;
+                    }
+                    else
+                        LegUpdate.FechaVencimientoCDM = null;
+
+
                     ////////// Datos Seguro
                     LegUpdate.NroPoliza = txtNroPoliza.Text;
                     LegUpdate.Descripcion = txtDescripcion.Text;
@@ -1540,6 +1715,13 @@ public partial class ABMLegajos2 : System.Web.UI.Page
                     LegInsert.FechaVencimientoCarnet = txtFechaVenCarnet.SelectedDate.Value;
                 else
                     LegInsert.FechaVencimientoCarnet = null;
+
+
+                if (txtFechaVenManejoDefensivo.SelectedDate != null)
+                    LegInsert.FechaVencimientoCDM = txtFechaVenManejoDefensivo.SelectedDate.Value;
+                else
+                    LegInsert.FechaVencimientoCDM = null;
+
 
                 ////////// Datos Seguro
 
@@ -1928,6 +2110,133 @@ public partial class ABMLegajos2 : System.Web.UI.Page
     }
 
 
+    public void btnExportarEmpresaRemis()
+    {
+        List<dynamic> datos = FiltrarLegajosRemis();
+        DateTime fechaVencimientoBaja = DateTime.Parse("01/01/1910");
+        var datosExportar = (from d in datos
+                             select new
+                             {
+                                 Contratista = d.dc == null ? "" : d.dc.Contratista,
+                                 CuitEmpresa = d.dc.CuitEmpresa,
+                                 Codigo = d.dc == null ? "" : d.dc.Codigo,//"  HeaderText="Contrato"
+                                 TipoContrato = d.dc.TipoContrato,
+                                 Servicio = d.dc.Servicio,
+                                 FechaInicio = d.dc.FechaInicio,
+                                 FechaVencimientoContrato = d.dc.FechaVencimiento,
+                                 Prorroga = d.dc.Prorroga,
+                                 CategoriaContrato = d.dc == null ? "" : d.dc.CategoriaContrato, //"  HeaderText="Categoria" 
+                                 Area = d.dc.Area,
+
+
+                                 Apellido = d.d.Apellido.ToUpper(),
+                                 Nombre = d.d.Nombre.ToUpper(),
+                                 d.d.NroDoc,//" HeaderText="NroDoc" 
+                                 d.d.CUIL,//" HeaderText="CUIL" 
+                                 CredVencimiento = d.CredencialHabilitada, //d.d.CredVencimiento == null ? "NO" : (DateTime.Now < d.d.CredVencimiento && d.d.CredVencimiento <= (d.dc != null && d.dc.FechaVencimiento != null ? DateTime.Parse(d.dc.FechaVencimiento) : fechaVencimientoBaja)) ? "SÍ" : "NO",
+                                 d.d.FechaUltmaModificacion,//  HeaderText="Fecha Ultima Modificación" 
+                                 d.PoseeFoto,
+
+                                 d.d.NroPoliza,//" HeaderText="Nro Poliza" 
+                                 objCompañiaSeguro = d.d.objCompañiaSeguro != null ? d.d.objCompañiaSeguro.Descripcion : "",//HeaderText="Compañia Seguro" 
+                                 d.d.FechaInicial,//" HeaderText="Inicio Seguro"
+                                 d.d.FechaVencimiento,//"  HeaderText="Vencimiento Seguro" 
+                                 d.d.FechaUltimoPago,//"  HeaderText="Ultimo Pago Seg." 
+                                 d.d.FechaVencimientoCarnet,
+                                 d.d.FechaVencimientoCDM
+
+
+
+                                 /*DesEstudiosBasicos = d.DesAdicionalQuimicos,  //  HeaderText="Estudios Básicos"
+                                 DesComplementarioRacs = d.DesComplementarioRacs, //  HeaderText="Comp. Racs"
+                                 DesAdicionalQuimicos = d.DesAdicionalQuimicos,//   HeaderText="Adicional Químicos" 
+                                 d.d.FechaUltimoExamen, //" HeaderText="Fecha Ult. Exámen" 
+                                 objConvenio = d.d.objConvenio != null ? d.d.objConvenio.Descripcion : "",//HeaderText="Convenio" 
+
+                                 d.d.FechaUltimaVerificacion,//"   HeaderText="Fecha Verificación"
+                                 d.d.ObservacionBloqueo,//" HeaderText="Obs. Bloqueo" 
+                                 d.d.Direccion,//" HeaderText="Dirección"
+                                 d.d.CodigoPostal,//" HeaderText="Codigo Postal" 
+                                 d.d.TelefonoFijo,//" HeaderText="Telefono Fijo"
+                                 d.d.CorreoElectronico,//" HeaderText="Correo Electrónico"
+                                 d.d.FechaNacimiento,//"   HeaderText="Fecha Nacimiento"
+                                 objEstadoCivil = d.d.objEstadoCivil != null ? d.d.objEstadoCivil.Descripcion : "",//HeaderText="Estado Civil" 
+                                 objNacionalidad = d.d.objNacionalidad != null ? d.d.objNacionalidad.Descripcion : "",//  HeaderText="Nacionalidad" 
+                                 objProvincia = d.d.objProvincia != null ? d.d.objProvincia.Descripcion : "",// HeaderText="Provincia" 
+                                 objEstadoVerificacion = d.d.objEstadoVerificacion != null ? d.d.objEstadoVerificacion.Descripcion : "",//HeaderText="Estado Verificacion" 
+                                 d.d.Observacion, //"  HeaderText="Observacion Auditoria"
+                                 d.d.FechaIngreos, //" HeaderText="Ingreso" 
+                                 d.d.GrupoSangre, //" HeaderText="Grupo Sangre" 
+                                 d.d.Funcion, //"  HeaderText="Función"*/
+
+
+
+                             }).OrderBy(w => w.Contratista).ToList();
+
+
+
+        List<string> camposExcluir = new List<string>();
+
+
+
+        Dictionary<string, string> alias = new Dictionary<string, string>() {
+        { "TipoDocumento", "Tipo Documento" } ,
+        { "FechaNacimiento", "Fecha Nacimiento" } ,
+        { "FechaUltimaVerificacion", "Fecha Verificación"} ,
+        { "FechaUltmaModificacion", "Fecha Ultima Modificación" } ,
+        { "CredVencimiento", "Hab. Cred." } ,
+        { "ObservacionBloqueo", "Obs. Bloqueo" } ,
+        { "Direccion", "Dirección"} ,
+        { "CodigoPostal", "Codigo Postal" } ,
+        { "TelefonoFijo", "Telefono Fijo"} ,
+        { "CorreoElectronico", "Correo Electrónico"} ,
+        { "objEstadoCivil", "Estado Civil" } ,
+        { "objNacionalidad", "Nacionalidad" } ,
+        { "objProvincia", "Provincia" } ,
+        { "objEstadoVerificacion", "Estado Verificacion" } ,
+        { "Observacion", "Observacion Auditoria"} ,
+        { "objConvenio", "Convenio" } ,
+        { "FechaIngreos", "Ingreso" } ,
+        { "GrupoSangre", "Grupo Sangre"} , 
+        { "Funcion", "Función"} ,
+        { "DesEstudiosBasicos", "Estudios Básicos"} ,
+        { "DesComplementarioRacs", "Comp. Racs"} ,
+        { "DesAdicionalQuimicos", "Adicional Químicos" } ,
+        { "FechaUltimoExamen", "Fecha Ult. Exámen" } ,
+        { "Contratista", "Contratista"  } ,
+        { "SubContratista", "Sub Contratista"  } ,
+        { "NroPoliza", "Nro Poliza"  } ,
+        { "objCompañiaSeguro", "Compañia Seguro"  } ,
+        { "FechaInicial,", "Inicio Seguro"  } ,
+        { "FechaUltimoPago", "Ultimo Pago Seg." } , 
+        { "FechaVencimiento", "Vencimiento Seguro"  } ,
+        { "Descripcion", "Descripción Seguro"  } ,
+        { "Codigo", "Contrato" } ,
+        { "FechaVencimientoContrato", "Vencimiento Contrato"  } ,
+        { "Periodo", "Periodo"  } ,
+        { "CategoriaContrato", "Categoria"  }   ,
+        { "PoseeFoto", "Posee Foto"  }  ,
+        { "FechaVencimientoCDM", "Vencimiento CDM"  } };
+
+        List<string> DatosReporte = new List<string>();
+        DatosReporte.Add("Legajos Empresa Remis");
+        DatosReporte.Add("Fecha y Hora emisión:" + DateTime.Now.ToString());
+        DatosReporte.Add("Incluye a todo el personal cargado en el SCS, para la empresa BRISAS");
+
+
+        GridView gv = Helpers.GenerarExportExcel(datosExportar.ToList<dynamic>(), alias, camposExcluir, DatosReporte);
+
+        System.IO.StringWriter stringWrite = new System.IO.StringWriter();
+        System.Web.UI.HtmlTextWriter htmlWrite = new HtmlTextWriter(stringWrite);
+        gv.RenderControl(htmlWrite);
+
+        HttpContext.Current.Response.ClearContent();
+        HttpContext.Current.Response.AddHeader("content-disposition", "attachment;filename=LegajosRemis" + "_" + DateTime.Now.ToString("M_dd_yyyy_H_M_s") + ".xls");
+        HttpContext.Current.Response.ContentType = "application/xls";
+        HttpContext.Current.Response.Write(stringWrite.ToString());
+        HttpContext.Current.Response.End();
+
+    }
 
     [WebMethod(EnableSession = true)]
     public static List<TempCursos> ObtenerCursos(long IdLegajo)

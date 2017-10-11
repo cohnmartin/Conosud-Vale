@@ -33,6 +33,34 @@
         var EsEdicion = false;
         //var PrimeraVez = true;
 
+
+        function GetFechaMinima(FechasVencimientos) {
+            var date_sort_asc = function (date1, date2) {
+                // This is a comparison function that will result in dates being sorted in  
+                // ASCENDING order. As you can see, JavaScript's native comparison operators  
+                // can be used to compare dates. This was news to me. 
+                if (date1 > date2) return 1;
+                if (date1 < date2) return -1;
+                return 0;
+            };
+
+            var arrayFecha = new Array();
+
+            for (var i = 0; i < FechasVencimientos.length; i++) {
+
+                if (FechasVencimientos[i] != null) { arrayFecha.push(FechasVencimientos[i]) };
+            }
+
+            arrayFecha.sort(date_sort_asc);
+            fechaMinima = arrayFecha[0];
+
+            if (fechaMinima != undefined)
+                return fechaMinima;
+            else
+                return null;
+
+        }
+
         function ControlCheckRacs(chkComp, chkEstudios) {
             if (chkComp.checked) {
                 document.getElementById(chkEstudios).checked = true;
@@ -134,6 +162,47 @@
 
                 var ajaxManager = $find("<%= RadAjaxManager1.ClientID %>");
                 var Item = $find("<%= RadGrid1.ClientID%>").get_masterTableView().get_selectedItems();
+                var itemEmpresaLeg = $find("<%= cboEmpresaLegajo.ClientID%>").findItemByValue($find("<%= cboEmpresaLegajo.ClientID%>").get_value());
+
+                if (itemEmpresaLeg.get_text().toLowerCase().indexOf("brisas") >= 0) {
+
+                    var fechaVencimientoCredencial = $find("<%= txtFechaVenCredencial.ClientID%>").get_selectedDate();
+                    var fechaVencimientoContrato = null;
+
+                    var item = $find("<%= cboContratoLegajo.ClientID %>").get_selectedItem();
+
+                    var grid = $find("<%= RadGrid1.ClientID%>");
+                    var MasterTable = grid.get_masterTableView();
+                    var cellVencimientoContrato = MasterTable.getCellByColumnUniqueName(Item[0], "FechaVencimientoContratoColumn");
+                    
+                    if (item != null) {
+                        fechaVencimientoContrato = item.get_attributes().getAttribute("FechaVencimiento");
+                        dia = parseInt(lTrim0(fechaVencimientoContrato.substr(0, 2)));
+                        mes = parseInt(lTrim0(fechaVencimientoContrato.substr(3, 2))) - 1;
+                        año = parseInt(lTrim0(fechaVencimientoContrato.substr(6, 4)));
+                        fechaVencimientoContrato = new Date(año, mes, dia);
+                    }
+                    else if (cellVencimientoContrato.outerText.trim() != "") {
+                        dia = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(0, 2)));
+                        mes = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(3, 2))) - 1;
+                        año = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(6, 4)));
+                        fechaVencimientoContrato = new Date(año, mes, dia);
+                    }
+
+
+
+                    var fechaMinima = GetFechaMinima([fechaVencimientoContrato,
+                        $find("<%= txtFechaVenCarnet.ClientID%>").get_selectedDate(),
+                        $find("<%= txtFechaVenManejoDefensivo.ClientID%>").get_selectedDate()]);
+
+                    if (fechaMinima != null && fechaVencimientoCredencial != null && fechaVencimientoCredencial > fechaMinima) {
+                        radalert("La Fecha de Vencimiento de la Credencial no es válida, la misma es MAYOR a la fecha mínima: " + fechaMinima.format("dd/MM/yyyy"), 450, 100, 'Legajos');
+                        return false;
+                    }
+                }
+
+
+                
 
                 $find("<%= ServerControlWindow1.ClientID%>").ShowWaiting(true, "Guardando Cambios...");
 
@@ -216,6 +285,9 @@
 
                 var cellFechaUltimoExamen = MasterTable.getCellByColumnUniqueName(Item[0], "FechaUltimoExamenColumn");
                 var cellFechaVenCarnet = MasterTable.getCellByColumnUniqueName(Item[0], "FechaVenCarnetColumn");
+                var cellFechaManejoDefensivo = MasterTable.getCellByColumnUniqueName(Item[0], "FechaManejoDefensivoColumn");
+
+
                 var cellRutaFoto = MasterTable.getCellByColumnUniqueName(Item[0], "RutaFotoColumn");
                 var cellCredVencimiento = MasterTable.getCellByColumnUniqueName(Item[0], "CredVencimientoColumn");
                 var cellObservacionBloqueo = MasterTable.getCellByColumnUniqueName(Item[0], "ObservacionBloqueoColumn");
@@ -365,33 +437,76 @@
                     año = parseInt(lTrim0(cellCredVencimiento.outerText.substr(6, 4)));
                     Fecha = new Date(año, mes, dia);
 
-                    dia = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(0, 2)));
-                    mes = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(3, 2))) - 1;
-                    año = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(6, 4)));
-                    FechaContrato = new Date(año, mes, dia);
+
+                    if (cellFechaManejoDefensivo.outerText.trim() != "") {
+                        dia = parseInt(lTrim0(cellFechaManejoDefensivo.outerText.substr(0, 2)));
+                        mes = parseInt(lTrim0(cellFechaManejoDefensivo.outerText.substr(3, 2))) - 1;
+                        año = parseInt(lTrim0(cellFechaManejoDefensivo.outerText.substr(6, 4)));
+                        FechaManejoDefensivo = new Date(año, mes, dia);
+                    }
+                    else {
+                        FechaManejoDefensivo = null;
+                    }
+
+                    if (cellFechaVenCarnet.outerText.trim() != "") {
+                        dia = parseInt(lTrim0(cellFechaVenCarnet.outerText.substr(0, 2)));
+                        mes = parseInt(lTrim0(cellFechaVenCarnet.outerText.substr(3, 2))) - 1;
+                        año = parseInt(lTrim0(cellFechaVenCarnet.outerText.substr(6, 4)));
+                        FechaCarnetConducir = new Date(año, mes, dia);
+                    }
+                    else {
+                        FechaCarnetConducir = null;
+                    }
+
+                   
+                    if (cellVencimientoContrato.outerText.trim() != "") {
+                        dia = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(0, 2)));
+                        mes = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(3, 2))) - 1;
+                        año = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(6, 4)));
+                        FechaContrato = new Date(año, mes, dia);
+                    }
+                    else {
+                        FechaContrato = null;
+                    }
+
 
 
                     if ($find("<%= txtFechaVenCredencial.ClientID%>") != null) {
                         $find("<%= txtFechaVenCredencial.ClientID%>").set_selectedDate();
 
-                        if (FechaContrato != "NaN")
-                            $find("<%= txtFechaVenCredencial.ClientID%>").set_maxDate(FechaContrato);
 
-                        if (Fecha > FechaContrato)
-                            $find("<%= txtFechaVenCredencial.ClientID%>").set_selectedDate(FechaContrato);
-                        else
-                            $find("<%= txtFechaVenCredencial.ClientID%>").set_selectedDate(Fecha);
+                     
+                        var itemEmpresaLeg = $find("<%= cboEmpresaLegajo.ClientID%>").findItemByValue(cellEmpresaLegajo.outerText.trim());
+
+                        if (itemEmpresaLeg.get_text().toLowerCase().indexOf("brisas") < 0) {
+                        
+                            if (FechaContrato != "NaN" && FechaContrato != null)
+                                $find("<%= txtFechaVenCredencial.ClientID%>").set_maxDate(FechaContrato);
+
+                            if (Fecha > FechaContrato)
+                                $find("<%= txtFechaVenCredencial.ClientID%>").set_selectedDate(FechaContrato);
+                            else
+                                $find("<%= txtFechaVenCredencial.ClientID%>").set_selectedDate(Fecha);
+                        }
+                        else {
+
+                            var fechaMinima = GetFechaMinima([FechaManejoDefensivo, FechaCarnetConducir, FechaContrato]);                           
+                            $find("<%= txtFechaVenCredencial.ClientID%>").set_selectedDate(fechaMinima);
+                           
+                        }
                     }
                 }
                 else {
 
-                    dia = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(0, 2)));
-                    mes = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(3, 2))) - 1;
-                    año = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(6, 4)));
-                    FechaContrato = new Date(año, mes, dia);
+                    if (cellVencimientoContrato.outerText.trim() != "") {
+                        dia = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(0, 2)));
+                        mes = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(3, 2))) - 1;
+                        año = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(6, 4)));
+                        FechaContrato = new Date(año, mes, dia);
 
-                    if (FechaContrato != "NaN" && $find("<%= txtFechaVenCredencial.ClientID%>") != null)
-                        $find("<%= txtFechaVenCredencial.ClientID%>").set_maxDate(FechaContrato);
+                        if (FechaContrato != "NaN" && $find("<%= txtFechaVenCredencial.ClientID%>") != null)
+                            $find("<%= txtFechaVenCredencial.ClientID%>").set_maxDate(FechaContrato);
+                    }
                 }
 
 
@@ -409,6 +524,15 @@
                     año = parseInt(lTrim0(cellFechaVenCarnet.outerText.substr(6, 4)));
                     Fecha = new Date(año, mes, dia);
                     $find("<%= txtFechaVenCarnet.ClientID%>").set_selectedDate(Fecha);
+                }
+
+
+                if (cellFechaManejoDefensivo.outerText.trim() != "") {
+                    dia = parseInt(lTrim0(cellFechaManejoDefensivo.outerText.substr(0, 2)));
+                    mes = parseInt(lTrim0(cellFechaManejoDefensivo.outerText.substr(3, 2))) - 1;
+                    año = parseInt(lTrim0(cellFechaManejoDefensivo.outerText.substr(6, 4)));
+                    Fecha = new Date(año, mes, dia);
+                    $find("<%= txtFechaVenManejoDefensivo.ClientID%>").set_selectedDate(Fecha);
                 }
 
 
@@ -637,6 +761,8 @@
             var grid = $find("<%= RadGrid1.ClientID%>");
             var MasterTable = grid.get_masterTableView();
             var Item = MasterTable.get_selectedItems();
+
+            var oWnd = radopen('ViewerCredenciales.aspx?IdLegajo=' + Item[0].getDataKeyValue("d.IdLegajos"), 'RadWindow2');
 
             if (Item.length > 0) {
 
@@ -1146,6 +1272,9 @@
                                     <telerik:GridBoundColumn DataField="d.FechaVencimientoCarnet" UniqueName="FechaVenCarnetColumn"
                                         HeaderText="Fecha Ven Credencial" Display="false">
                                     </telerik:GridBoundColumn>
+                                    <telerik:GridBoundColumn DataField="d.FechaVencimientoCDM" UniqueName="FechaManejoDefensivoColumn"
+                                        HeaderText="Fecha CDM" Display="false">
+                                    </telerik:GridBoundColumn>
                                     <telerik:GridBoundColumn DataField="d.RutaFoto" UniqueName="RutaFotoColumn" Display="false">
                                     </telerik:GridBoundColumn>
                                     <telerik:GridBoundColumn DataField="d.EmpresaLegajo" UniqueName="EmpresaLegajoColumn"
@@ -1502,6 +1631,11 @@
                                                         <asp:Label ID="Label28" runat="server" SkinID="lblConosud" Text="Vencimiento Carnet:"
                                                             Style="padding: 5px"></asp:Label>
                                                         <telerik:RadDatePicker ID="txtFechaVenCarnet" MinDate="1950/1/1" runat="server" ZIndex="922000000">
+                                                        </telerik:RadDatePicker>
+                                                        <asp:Label ID="Label41" runat="server" SkinID="lblConosud" Text="Vencimiento CMD:"
+                                                            Style="padding: 5px"></asp:Label>
+                                                        <telerik:RadDatePicker ID="txtFechaVenManejoDefensivo" MinDate="1950/1/1" runat="server"
+                                                            ZIndex="922000000">
                                                         </telerik:RadDatePicker>
                                                     </td>
                                                 </tr>
