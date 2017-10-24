@@ -887,7 +887,7 @@ namespace Entidades
             styleRule2,
             styleRule3,
             styleRule4});
-            this.Width = new Telerik.Reporting.Drawing.Unit(20.8234806060791D, Telerik.Reporting.Drawing.UnitType.Cm);
+            this.Width = new Telerik.Reporting.Drawing.Unit(19.920000076293945D, Telerik.Reporting.Drawing.UnitType.Cm);
             ((System.ComponentModel.ISupportInitialize)(this)).EndInit();
 
         }
