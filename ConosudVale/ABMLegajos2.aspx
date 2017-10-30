@@ -169,24 +169,29 @@
                     var fechaVencimientoCredencial = $find("<%= txtFechaVenCredencial.ClientID%>").get_selectedDate();
                     var fechaVencimientoContrato = null;
 
-                    var item = $find("<%= cboContratoLegajo.ClientID %>").get_selectedItem();
-
+                    var itemContratoCbo = $find("<%= cboContratoLegajo.ClientID %>").get_selectedItem();
                     var grid = $find("<%= RadGrid1.ClientID%>");
                     var MasterTable = grid.get_masterTableView();
-                    var cellVencimientoContrato = MasterTable.getCellByColumnUniqueName(Item[0], "FechaVencimientoContratoColumn");
-                    
-                    if (item != null) {
-                        fechaVencimientoContrato = item.get_attributes().getAttribute("FechaVencimiento");
+                    var cellVencimientoContrato = null;
+
+                    if (itemContratoCbo != null) {
+
+                        fechaVencimientoContrato = itemContratoCbo.get_attributes().getAttribute("FechaVencimiento");
                         dia = parseInt(lTrim0(fechaVencimientoContrato.substr(0, 2)));
                         mes = parseInt(lTrim0(fechaVencimientoContrato.substr(3, 2))) - 1;
                         año = parseInt(lTrim0(fechaVencimientoContrato.substr(6, 4)));
                         fechaVencimientoContrato = new Date(año, mes, dia);
                     }
-                    else if (cellVencimientoContrato.outerText.trim() != "") {
-                        dia = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(0, 2)));
-                        mes = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(3, 2))) - 1;
-                        año = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(6, 4)));
-                        fechaVencimientoContrato = new Date(año, mes, dia);
+                    else {
+
+                        var cellVencimientoContrato = MasterTable.getCellByColumnUniqueName(Item[0], "FechaVencimientoContratoColumn");
+
+                        if (cellVencimientoContrato.outerText.trim() != "") {
+                            dia = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(0, 2)));
+                            mes = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(3, 2))) - 1;
+                            año = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(6, 4)));
+                            fechaVencimientoContrato = new Date(año, mes, dia);
+                        }
                     }
 
 
@@ -202,7 +207,7 @@
                 }
 
 
-                
+
 
                 $find("<%= ServerControlWindow1.ClientID%>").ShowWaiting(true, "Guardando Cambios...");
 
@@ -458,7 +463,7 @@
                         FechaCarnetConducir = null;
                     }
 
-                   
+
                     if (cellVencimientoContrato.outerText.trim() != "") {
                         dia = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(0, 2)));
                         mes = parseInt(lTrim0(cellVencimientoContrato.outerText.substr(3, 2))) - 1;
@@ -475,11 +480,11 @@
                         $find("<%= txtFechaVenCredencial.ClientID%>").set_selectedDate();
 
 
-                     
+
                         var itemEmpresaLeg = $find("<%= cboEmpresaLegajo.ClientID%>").findItemByValue(cellEmpresaLegajo.outerText.trim());
 
                         if (itemEmpresaLeg.get_text().toLowerCase().indexOf("brisas") < 0) {
-                        
+
                             if (FechaContrato != "NaN" && FechaContrato != null)
                                 $find("<%= txtFechaVenCredencial.ClientID%>").set_maxDate(FechaContrato);
 
@@ -490,9 +495,9 @@
                         }
                         else {
 
-                            var fechaMinima = GetFechaMinima([FechaManejoDefensivo, FechaCarnetConducir, FechaContrato]);                           
+                            var fechaMinima = GetFechaMinima([FechaManejoDefensivo, FechaCarnetConducir, FechaContrato]);
                             $find("<%= txtFechaVenCredencial.ClientID%>").set_selectedDate(fechaMinima);
-                           
+
                         }
                     }
                 }
@@ -523,7 +528,8 @@
                     mes = parseInt(lTrim0(cellFechaVenCarnet.outerText.substr(3, 2))) - 1;
                     año = parseInt(lTrim0(cellFechaVenCarnet.outerText.substr(6, 4)));
                     Fecha = new Date(año, mes, dia);
-                    $find("<%= txtFechaVenCarnet.ClientID%>").set_selectedDate(Fecha);
+                    if ($find("<%= txtFechaVenCarnet.ClientID%>") != null)
+                        $find("<%= txtFechaVenCarnet.ClientID%>").set_selectedDate(Fecha);
                 }
 
 
@@ -532,7 +538,9 @@
                     mes = parseInt(lTrim0(cellFechaManejoDefensivo.outerText.substr(3, 2))) - 1;
                     año = parseInt(lTrim0(cellFechaManejoDefensivo.outerText.substr(6, 4)));
                     Fecha = new Date(año, mes, dia);
-                    $find("<%= txtFechaVenManejoDefensivo.ClientID%>").set_selectedDate(Fecha);
+
+                    if ($find("<%= txtFechaVenManejoDefensivo.ClientID%>") != null)
+                        $find("<%= txtFechaVenManejoDefensivo.ClientID%>").set_selectedDate(Fecha);
                 }
 
 
@@ -762,7 +770,7 @@
             var MasterTable = grid.get_masterTableView();
             var Item = MasterTable.get_selectedItems();
 
-            var oWnd = radopen('ViewerCredenciales.aspx?IdLegajo=' + Item[0].getDataKeyValue("d.IdLegajos"), 'RadWindow2');
+            //var oWnd = radopen('ViewerCredenciales.aspx?IdLegajo=' + Item[0].getDataKeyValue("d.IdLegajos"), 'RadWindow2');
 
             if (Item.length > 0) {
 
